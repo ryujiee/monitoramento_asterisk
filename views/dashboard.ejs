@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <div class="status-block">
+    <h1 class="h1-tittle"><ion-icon name="stats-chart-outline"></ion-icon> Dashboard de Telefonia <ion-icon name="stats-chart-outline"></ion-icon></h1>
+    <div class="status-info">
+      <div class="status-item">
+        <h3><ion-icon name="alert-circle-outline"></ion-icon> Status do Asterisk</h3>
+        <p id="asteriskStatus"><%= asteriskStatus %>
+        <% if (asteriskStatus === 'OK') { %>
+          <span class="status-indicator status-ok"></span>
+        <% } else { %>
+          <span class="status-indicator status-off"></span>
+        <% } %></p>
+      </div>
+      <div class="status-item">
+        <h3><ion-icon name="time-outline"></ion-icon> Uptime</h3>
+        <div class="uptime-block">
+          <p id="asteriskUptime"><%= asteriskUptime %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="menu" id="intervaloTempoDiv">
+    <label for="timeInterval">Intervalo de tempo:</label>
+    <select class='timeInterval' id="timeInterval">
+      <option value="5">5s</option>
+      <option value="30">30s</option>
+      <option value="60">1min</option>
+      <option value="300">5min</option>
+      <option value="600">10min</option>
+      <option value="1800">30min</option>
+      <option value="3600">1h</option>
+    </select>
+  </div>
+  <h1 class="subtitle">Ramais</h1>
+
+  <div class="dashboard-container">
+    <div class="dashboard-item">
+      <h2><ion-icon name="podium-outline"></ion-icon> Gráfico de Ramais Online/Offline</h2>
+      <div class="chart-container">
+        <canvas id="onlineOfflineChart"></canvas>
+      </div>
+    </div>
+    <div class="dashboard-item">
+      <h2><ion-icon name="call-outline"></ion-icon> Ramais</h2>
+      <div class="container">
+        <div class="info-block">
+          <h2>Total</h2>
+          <p id="created"><%= totalRamais %></p>
+        </div>
+        <div class="info-block">
+          <h2>Online</h2>
+          <p id="online"><%= totalOnline %></p>
+        </div>
+        <div class="info-block">
+          <h2>Offline</h2>
+          <p id="offline"><%= totalOffline %></p>
+        </div>
+      </div>      
+    </div>
+    <div class="dashboard-item">
+      <h2><ion-icon name="cloud-offline-outline"></ion-icon> Ramais Offline</h2>
+      <div class="container-offlineRamais">
+        <% if (ramaisOffline && ramaisOffline.length > 0) { %>
+          <% ramaisOffline.forEach(function (ramal) { %>
+            <div class="info-block-ramaisOffline">
+              <ul>
+                <li><%= ramal %></li>
+              </ul>
+            </div>      
+          <% }); %>
+        <% } else { %>
+          <div class="info-block-ramaisOffline">
+            <h2>Nenhum Ramal Offline</h2>
+            <p>Não há ramais offline no momento.</p>
+          </div>
+        <% } %>
+    </div>      
+    </div>
+    <div class="dashboard-item">
+      <h2><ion-icon name="chevron-down-outline"></ion-icon> Ramais Online</h2>
+      <% if (ramaisOnline && ramaisOnline.length > 0) { %>
+        <div class="container-onlineRamais">
+          <ul>
+            <% ramaisOnline.forEach(function (ramal) { %>
+              <div class="info-block-onlineRamais">
+              <li><%= ramal %></li>
+             </div>
+
+            <% }); %>
+          </ul>
+      <% } else { %>
+        <div class="info-block-onlineRamais">
+          <p>Nenhum ramal online</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+  </div>
+
+
+
+  <h1 class="subtitle">Ligações</h1>
+  <div class="dashboard-container">
+
+    <div class="dashboard-item">
+      <h2><ion-icon name="call-outline"></ion-icon> Ligações Ativas</h2>
+      <div class="container">
+        <div class="info-block">
+          <h2>Total</h2>
+          <p id="quantidadeLigacoes"><%= quantidadeLigacoes %></p>
+        </div>
+      </div>      
+    </div>
+
+  <div class="dashboard-item">
+    <h2>Ligações de Saída em Andamento</h2>
+    <div class="container-chamadasAndamento">
+      <% if (mensagemChamadasEmAndamento && mensagemChamadasEmAndamento.length > 0) { %>
+      <ul>
+        <% mensagemChamadasEmAndamento.forEach(function (mensagem) {
+          var parts = mensagem.split(' ');
+          var ramalOrigem = parts[2];
+          var ramalDestino = parts[5];
+          var tronco = parts[8];
+        %>
+        <li>O ramal <%= ramalOrigem %> está ligando para <%= ramalDestino %> pelo tronco <%= tronco %></li>
+        <% }); %>
+      </ul>
+      <% } else { %>
+      <p>Nenhuma ligação em andamento</p>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="dashboard-item">
+    <h2>Ramais SIP</h2>
+    <% if (peersInUse && peersInUse.length > 0) { %>
+      <ul>
+        <% peersInUse.forEach(function (peer) { %>
+          <div class="peersData-container">
+          <% if (peer.inUse !== '0/0/0' && peer.status === 'Online') { %>
+            <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está ocupado.</li>
+          <% } else if (peer.status === 'Online') { %>
+            <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está livre.</li>
+          <% } %>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>Nenhum peer SIP em uso.</p>
+    <% } %>
+  </div>
+
+  <div class="dashboard-item">
+    <h2>Ligações de Entrada em Andamento</h2>
+    <div class="container-chamadasEntradaAndamento">
+      <% if (mensagemChamadasEmAndamentoEntrada && mensagemChamadasEmAndamentoEntrada.length > 0) { %>
+      <ul>
+        <% mensagemChamadasEmAndamentoEntrada.forEach(function (mensagem_entrada) { %>
+        <li>O ramal <%= mensagem_entrada %></li>
+        <% }); %>
+      </ul>
+      <% } else { %>
+      <p>Nenhuma ligação em andamento</p>
+      <% } %>
+    </div>
+  </div>
+  </div>
+
+  <h1 class="subtitle">Troncos SIP</h1>
+
+  <div class="dashboard-container">
+    <div class="dashboard-item">
+      <h2><ion-icon name="podium-outline"></ion-icon> Gráfico de Troncos SIP Online/Offline</h2>
+      <div class="chart-container">
+        <canvas id="onlineOfflineTroncoChart"></canvas>
+      </div>
+    </div>
+    <div class="dashboard-item">
+      <h2><ion-icon name="server-outline"></ion-icon> Troncos SIP</h2>
+      <div class="container">
+        <div class="info-block">
+          <h2>Total</h2>
+          <p id="totalTroncos"><%= totalTroncos.totalTroncos %></p>
+        </div>
+        <div class="info-block">
+          <h2>Online</h2>
+          <p id="troncosOnline"><%= totalTroncos.troncosOnline.length%></p>
+        </div>
+        <div class="info-block">
+          <h2>Offline</h2>
+          <p id="troncosOffline"><%= totalTroncos.troncosOffline.length %></p>
+        </div>
+      </div>      
+    </div>
+    <div class="dashboard-item">
+      <h2><ion-icon name="cloud-offline-outline"></ion-icon> Troncos Offline</h2>
+      <div class="container-offlineTroncos">
+        <% if (totalTroncos.troncosOffline && totalTroncos.troncosOffline.length > 0) { %>
+          <% totalTroncos.troncosOffline.forEach(function (tronco) { %>
+            <div class="info-block-ramaisOffline">
+              <ul>
+                <li><%= tronco %></li>
+              </ul>
+            </div>      
+          <% }); %>
+        <% } else { %>
+          <div class="info-block-ramaisOffline">
+            <h2>Nenhum tronco Offline</h2>
+            <p>Não há troncos offline no momento.</p>
+          </div>
+        <% } %>
+    </div>      
+    </div>
+    <div class="dashboard-item">
+      <h2><ion-icon name="chevron-down-outline"></ion-icon> Troncos Online</h2>
+      <% if (totalTroncos.troncosOnline && totalTroncos.troncosOnline.length > 0) { %>
+        <div class="container-onlineTroncos">
+          <ul>
+            <% totalTroncos.troncosOnline.forEach(function (tronco) { %>
+              <div class="info-block-onlineTroncos">
+              <li><%= tronco %></li>
+             </div>
+
+            <% }); %>
+          </ul>
+      <% } else { %>
+        <div class="info-block-onlineTroncos">
+          <p>Nenhum tronco online</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  </div>
+  <h1 class="subtitle">Logs asterisk</h1>
+  <div class="dashboard-container">
+    <div class="dashboard-item-logs">
+      <% for (let i = 0; i < logs.length; i++) { %>
+        <p class="dashboard-item-logs-p"><%= logs[i] %></p>
+      <% } %>
+    </div>
+  </div>
+  
+
+
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// DASHBOARD TRONCO 
+var onlineTronco = 0; // Inicialmente, definimos os valores como 0
+var offlineTronco = 0;
+// Configurações do gráfico
+var chartTroncosConfig = {
+  type: 'pie',
+  data: {
+    labels: ['Online', 'Offline'],
+    datasets: [{
+      data: [onlineTronco, offlineTronco],
+      backgroundColor: ['#3cba9f', '#f44336'],
+      hoverBackgroundColor: ['#63d6b6', '#f6685e']
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+}
+
+// Renderizar o gráfico
+var onlineOfflineTroncoChart = new Chart(document.getElementById('onlineOfflineTroncoChart'), chartTroncosConfig);
+
+// Atualizar os dados do gráfico de Ramais Online/Offline
+function updateOnlineOfflineTroncoChart(onlineTronco, offlineTronco) {
+  onlineOfflineTroncoChart.data.datasets[0].data = [onlineTronco, offlineTronco];
+  onlineOfflineTroncoChart.update();
+}
+
+// Função para atualizar os dados do dashboard
+function updateDashboardTronco(data) {
+  // Atualizar os valores dos contadores
+  onlineTronco = data.totalTroncos.troncosOnline.length;
+  offlineTronco = data.totalTroncos.troncosOffline.length;
+  document.getElementById('troncosOnline').innerText = onlineTronco;
+  document.getElementById('troncosOffline').innerText = offlineTronco;
+
+  // Atualizar os dados do gráfico de Ramais Online/Offline
+  updateOnlineOfflineTroncoChart(onlineTronco, offlineTronco);
+}
+
+// DASHBOARD RAMAIS
+var onlineCount = 0; // Inicialmente, definimos os valores como 0
+var offlineCount = 0;
+// Configurações do gráfico
+var chartConfig = {
+  type: 'pie',
+  data: {
+    labels: ['Online', 'Offline'],
+    datasets: [{
+      data: [onlineCount, offlineCount],
+      backgroundColor: ['#3cba9f', '#f44336'],
+      hoverBackgroundColor: ['#63d6b6', '#f6685e']
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false
+  }
+};
+
+// Renderizar o gráfico
+var onlineOfflineChart = new Chart(document.getElementById('onlineOfflineChart'), chartConfig);
+
+// Atualizar os dados do gráfico de Ramais Online/Offline
+function updateOnlineOfflineChart(onlineCount, offlineCount) {
+  onlineOfflineChart.data.datasets[0].data = [onlineCount, offlineCount];
+  onlineOfflineChart.update();
+}
+
+// Função para atualizar os dados do dashboard
+function updateDashboard(data) {
+  // Atualizar os valores dos contadores
+  onlineCount = data.totalOnline;
+  offlineCount = data.totalOffline;
+  document.getElementById('online').innerText = onlineCount;
+  document.getElementById('offline').innerText = offlineCount;
+
+  // Atualizar os dados do gráfico de Ramais Online/Offline
+  updateOnlineOfflineChart(onlineCount, offlineCount);
+}
+
+// Estabelecer a conexão com o servidor via Socket.io
+const socket = io();
+
+// Receber os dados atualizados do servidor
+socket.on('dataUpdated', (data) => {
+  // Atualizar os elementos HTML com os novos dados gerais
+  document.getElementById('asteriskStatus').textContent = data.asteriskStatus;
+  document.getElementById('asteriskUptime').textContent = data.asteriskUptime;
+  document.getElementById('created').textContent = data.totalRamais;
+  document.getElementById('online').textContent = data.totalOnline;
+  document.getElementById('offline').textContent = data.totalOffline;
+  document.getElementById('quantidadeLigacoes').textContent = data.quantidadeLigacoes;
+  document.getElementById('totalTroncos').textContent = data.totalTroncos.totalTroncos;
+  document.getElementById('troncosOnline').textContent = data.totalTroncos.troncosOnline.length;
+  document.getElementById('troncosOffline').textContent = data.totalTroncos.troncosOffline.length;
+
+
+  // Chamar a função de atualização do dashboard com os dados recebidos
+  updateDashboard(data);
+  updateDashboardTronco(data);
+});
+
+
+// Receber os dados atualizados dos ramais offline
+socket.on('ramaisOfflineUpdated', (ramaisOfflineData) => {
+  const containerOfflineRamais = document.querySelector('.container-offlineRamais');
+  containerOfflineRamais.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (ramaisOfflineData.ramaisOffline && ramaisOfflineData.ramaisOffline.length > 0) {
+    const ul = document.createElement('ul');
+    ul.classList.add('container-offlineRamais'); // Adicionar classe CSS à lista
+
+    ramaisOfflineData.ramaisOffline.forEach((ramal) => {
+      const li = document.createElement('li');
+      li.textContent = ramal;
+      li.classList.add('info-block-ramaisOffline'); // Adicionar classe CSS ao elemento de ramal
+      ul.appendChild(li);
+    });
+
+    containerOfflineRamais.appendChild(ul);
+  } else {
+    const noRamalOffline = document.createElement('li');
+    noRamalOffline.textContent = 'Nenhum ramal Offline';
+    noRamalOffline.classList.add('info-block-ramaisOffline'); // Adicionar classe CSS ao elemento
+    containerOfflineRamais.appendChild(noRamalOffline);
+  }
+});
+
+// Receber os dados atualizados dos troncos offline
+socket.on('totalTroncosUpdated', (totalTroncosData) => {
+  totalTroncosData = totalTroncosData.totalTroncos
+  const containerOfflineTroncos = document.querySelector('.container-offlineTroncos');
+  containerOfflineTroncos.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (totalTroncosData.troncosOffline && totalTroncosData.troncosOffline.length > 0) {
+    const ul = document.createElement('ul');
+    ul.classList.add('container-offlineTroncos'); // Adicionar classe CSS à lista
+
+    totalTroncosData.troncosOffline.forEach((tronco) => {
+      const li = document.createElement('li');
+      li.textContent = tronco;
+      li.classList.add('info-block-ramaisOffline'); // Adicionar classe CSS ao elemento de ramal
+      ul.appendChild(li);
+    });
+
+    containerOfflineTroncos.appendChild(ul);
+  } else {
+    const noTroncoOffline = document.createElement('li');
+    noTroncoOffline.textContent = 'Nenhum tronco Offline';
+    noTroncoOffline.classList.add('info-block-ramaisOffline'); // Adicionar classe CSS ao elemento
+    containerOfflineTroncos.appendChild(noTroncoOffline);
+  }
+});
+
+// Receber os dados atualizados dos troncos online
+socket.on('totalTroncosUpdated', (totalTroncosData) => {
+  totalTroncosData = totalTroncosData.totalTroncos
+  const containerOfflineTroncos = document.querySelector('.container-offlineTroncos');
+  containerOfflineTroncos.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (totalTroncosData.troncosOffline && totalTroncosData.troncosOffline.length > 0) {
+    const ul = document.createElement('ul');
+    ul.classList.add('container-offlineTroncos'); // Adicionar classe CSS à lista
+
+    totalTroncosData.troncosOffline.forEach((tronco) => {
+      const li = document.createElement('li');
+      li.textContent = tronco;
+      li.classList.add('info-block-ramaisOffline'); // Adicionar classe CSS ao elemento de ramal
+      ul.appendChild(li);
+    });
+
+    containerOfflineTroncos.appendChild(ul);
+  } else {
+    const noTroncoOffline = document.createElement('li');
+    noTroncoOffline.textContent = 'Nenhum tronco Offline';
+    noTroncoOffline.classList.add('info-block-ramaisOffline'); // Adicionar classe CSS ao elemento
+    containerOfflineTroncos.appendChild(noTroncoOffline);
+  }
+});
+
+// Receber os dados atualizados dos ramais online
+socket.on('ramaisOnlineUpdated', (ramaisOnlineData) => {
+  const containerOnlineRamais = document.querySelector('.container-onlineRamais');
+  containerOnlineRamais.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (ramaisOnlineData.ramaisOnline && ramaisOnlineData.ramaisOnline.length > 0) {
+    const ul = document.createElement('ul');
+    ul.classList.add('container-onlineRamais'); // Adicionar classe CSS à lista
+
+    ramaisOnlineData.ramaisOnline.forEach((ramal) => {
+      const li = document.createElement('li');
+      li.innerHTML = ramal;
+      li.classList.add('info-block-onlineRamais'); // Adicionar classe CSS ao elemento de ramal
+      ul.appendChild(li);
+    });
+
+    containerOnlineRamais.appendChild(ul);
+  } else {
+    const noRamalOnline = document.createElement('li');
+    noRamalOnline.textContent = 'Nenhum ramal online';
+    noRamalOnline.classList.add('info-block-onlineRamais'); // Adicionar classe CSS ao elemento
+    containerOnlineRamais.appendChild(noRamalOnline);
+  }
+});
+
+
+// Receber os dados atualizados das chamadas em andamento
+socket.on('chamadasAndamentoUpdated', (chamadasData) => {
+  const containerChamadasAndamento = document.querySelector('.container-chamadasAndamento');
+  containerChamadasAndamento.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (chamadasData.mensagemChamadasEmAndamento && chamadasData.mensagemChamadasEmAndamento.length > 0) {
+    const ul = document.createElement('ul');
+    ul.classList.add('container-chamadasAndamento'); // Adicionar classe CSS à lista
+
+    chamadasData.mensagemChamadasEmAndamento.forEach((mensagem) => {
+      const li = document.createElement('li');
+      li.innerHTML  = mensagem;
+      li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
+      ul.appendChild(li);
+    });
+
+    containerChamadasAndamento.appendChild(ul);
+  } else {
+    const noCall = document.createElement('li');
+    noCall.textContent = 'Nenhuma ligação em andamento';
+    noCall.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
+    containerChamadasAndamento.appendChild(noCall);
+  }
+});
+
+// Receber os dados atualizados das chamadas de entrada em andamento
+socket.on('chamadasAndamentoEntradaUpdated', (chamadasEntradaData) => {
+  const containerChamadasEntradaAndamento = document.querySelector('.container-chamadasEntradaAndamento');
+  containerChamadasEntradaAndamento.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (chamadasEntradaData.mensagemChamadasEmAndamentoEntrada && chamadasEntradaData.mensagemChamadasEmAndamentoEntrada.length > 0) {
+    const ul = document.createElement('ul');
+    ul.classList.add('container-chamadasAndamento'); // Adicionar classe CSS à lista
+
+    chamadasEntradaData.mensagemChamadasEmAndamentoEntrada.forEach((mensagem_entrada) => {
+      const li = document.createElement('li');
+      li.innerHTML  = mensagem_entrada;
+      li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
+      ul.appendChild(li);
+    });
+
+    containerChamadasEntradaAndamento.appendChild(ul);
+  } else {
+    const noCall = document.createElement('li');
+    noCall.textContent = 'Nenhuma ligação em andamento';
+    noCall.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
+    containerChamadasEntradaAndamento.appendChild(noCall);
+  }
+});
+
+// Receber os logs atualizados
+socket.on('logsUpdated', (logsData) => {
+  const logsContainer = document.querySelector('.dashboard-item-logs');
+  logsContainer.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (logsData.logs && logsData.logs.length > 0) {
+    logsData.logs.forEach((log) => {
+      const p = document.createElement('p');
+      p.textContent = log;
+      logsContainer.appendChild(p);
+    });
+  } else {
+    const noLogsMessage = document.createElement('p');
+    noLogsMessage.textContent = 'Nenhum log disponível';
+    logsContainer.appendChild(noLogsMessage);
+  }
+});
+
+
+
+// Receber os dados atualizados dos ramais livres e em ligação
+socket.on('peersInUse', (peersData) => {
+  const containerPeersInUse = document.querySelector('.peersData-container');
+  containerPeersInUse.innerHTML = ''; // Limpar o conteúdo anterior
+
+  if (peersData.peersInUse && peersData.peersInUse.length > 0) {
+    const ul = document.createElement('ul');
+    ul.classList.add('peersData-container'); // Adicionar classe CSS à lista
+
+    peersData.peersInUse.forEach((peer) => {
+      if (peer.status === 'Online') {
+        const li = document.createElement('li');
+        if (peer.inUse !== '0/0/0') {
+          if (peer.owner) {
+            li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está ocupado.`;
+          } else {
+            li.textContent = `O ramal ${peer.peerName} está ocupado.`;
+          }
+        } else {
+          li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está livre.`;
+        }
+        li.classList.add('info-block-peersInUse'); // Adicionar classe CSS ao elemento de mensagem
+        ul.appendChild(li);
+      }
+    });
+
+    containerPeersInUse.appendChild(ul);
+  } else {
+    const noCall = document.createElement('li');
+    noCall.textContent = 'Nenhum peer SIP em uso.';
+    noCall.classList.add('info-block-peersInUse'); // Adicionar classe CSS ao elemento
+    containerPeersInUse.appendChild(noCall);
+  }
+});
+
+const timeIntervalSelect = document.getElementById("timeInterval");
+
+timeIntervalSelect.addEventListener("change", function () {
+  const selectedValue = this.value;
+
+  fetch("/updateInterval", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ interval: selectedValue }),
+  })
+    .then(function (response) {
+      if (response.ok) {
+        console.log("Interval updated successfully");
+      } else {
+        console.error("Failed to update interval");
+      }
+    })
+    .catch(function (error) {
+      console.error("Error updating interval:", error);
+    });
+});
+
+// Função para rolar até o final do elemento
+function scrollToEnd(element) {
+  element.scrollTop = element.scrollHeight;
+}
+
+// Rolar para o final do elemento .dashboard-item-logs quando a página carregar
+window.addEventListener('load', function() {
+  var logsContainer = document.querySelector('.dashboard-item-logs');
+  scrollToEnd(logsContainer);
+});
+
+
+</script>
+</body>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</html>
