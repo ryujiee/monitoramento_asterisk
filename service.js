@@ -484,50 +484,6 @@ const getLogs = () => {
     return logLines;
 }
 
-/*
-
-const lastCalls = () => {
-  const fs = require('fs');
-  const readline = require('readline');
-
-  // Arquivo de log
-  const logFile = '/var/log/asterisk/full';
-
-  // Palavra a ser procurada
-  const wordToSearch = 'End MixMonitor Recording';
-
-  // Data/hora atual
-  const now = new Date();
-
-  // Data/hora de 24 horas atrás
-  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
-  // Variável para armazenar a contagem de linhas
-  let lineCount = 0;
-
-  // Criando interface de leitura
-  const rl = readline.createInterface({
-    input: fs.createReadStream(logFile),
-    crlfDelay: Infinity
-  });
-
-  // Evento disparado a cada linha lida
-  rl.on('line', (line) => {
-    // Verifica se a linha contém a palavra procurada
-    if (line.includes(wordToSearch)) {
-      lineCount++;
-    }
-  });
- 
-
-  // Evento disparado quando a leitura do arquivo é concluída
-  rl.on('close', () => {
-    console.log(`Número de linhas com a palavra "${wordToSearch}": ${lineCount}`);
-  });
-
-}
- */
-
 
 module.exports = {
     getTotalRamais,
@@ -539,6 +495,5 @@ module.exports = {
     getSIPPeersInUse,
     getPeerOwner,
     getTotalTroncos,
-    getLogs,
-    //lastCalls
+    getLogs
 };
