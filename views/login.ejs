@@ -1,83 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
-  <style>
-    /* Estilos CSS para o login */
-    body {
-      background-color: #1a1c1d;
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
-
-    h1 {
-      color: #fff;
-      font-size: 40px;
-      margin-top: 50px;
-    }
-
-    p {
-      color: #fff;
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      margin-top: 30px;
-    }
-
-    label {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
-      width: 250px;
-      margin-bottom: 20px;
-      background-color: #4c4c4c;
-      color: white;
-    }
-
-    input[type="submit"] {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #262a2b;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    input[type="submit"]:hover {
-      background-color: #3e4244;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Log in</title>
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/login.css">
+    <style>
+        .srouce{
+            text-align: center;
+            color: #ffffff;
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Login</h1>
-  <% let message %>
-  <% if (message) { %>
-    <p><%= message %></p>
-  <% } %>
-  <form action="/login" method="POST">
-    <div>
-      <label for="username">Usuário: </label>
-      <input type="text" name="username" id="username" required>
+  <h1>Dashboard Telefonia</h1>
+
+    <div class="main-container">
+        <div class="form-container">
+
+            <div class="form-body">
+                <h2 class="title">Log in</h2>
+
+                <form action="/login" method="POST" class="the-form">
+
+                    <label for="username">Usuário</label>
+                    <input type="username" name="username" id="username" placeholder="Digite seu usuário">
+
+                    <label for="password">Senha</label>
+                    <input type="password" name="password" id="password" placeholder="Digite sua senha...">
+
+                    <input type="submit" value="Log In">
+
+                </form>
+
+            </div><!-- FORM BODY-->
+        </div><!-- FORM CONTAINER -->
     </div>
-    <div>
-      <label for="password">Senha: </label>
-      <input type="password" name="password" id="password" required>
-    </div>
-    <div>
-      <input type="submit" value="Login">
-    </div>
-  </form>
+
 </body>
 </html>

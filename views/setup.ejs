@@ -1,79 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Setup</title>
-  <style>
-    /* Estilos CSS para o setup */
-    body {
-      background-color: #1a1c1d;
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
-
-    h1 {
-      color: #fff;
-      font-size: 40px;
-      margin-top: 50px;
-    }
-
-    p {
-      color: #fff;
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      margin-top: 30px;
-    }
-
-    label {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
-      width: 250px;
-      margin-bottom: 20px;
-      background-color: #4c4c4c;
-      color: white;
-    }
-
-    input[type="submit"] {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #262a2b;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    input[type="submit"]:hover {
-      background-color: #3e4244;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Muli:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
-  <h1>Criação de Usuário</h1>
-  <form action="/setup" method="POST">
-    <div>
-      <label for="username">Usuário:</label>
-      <input type="text" name="username" id="username" required>
+  <h1>Dashboard Telefonia</h1>
+
+    <div class="main-container">
+        <div class="form-container">
+
+            <div class="form-body">
+                <h2 class="title">Registro de usuário</h2>
+
+                <form action="/setup" method="POST" class="the-form">
+
+                    <label for="email">Usuário</label>
+                    <input type="username" name="username" id="username" placeholder="Digite o usuário de acesso..." required>
+
+                    <label for="password">Senha</label>
+                    <input type="password" name="password" id="password" placeholder="Digite sua senha..." required>
+
+                    <label for="confirm-password">Confirmar Senha</label>
+                    <input type="password" name="confirm-password" id="confirm-password" placeholder="Repita sua senha..." required>
+
+
+                    <input type="submit" value="Registrar">
+
+                </form>
+
+            </div><!-- FORM BODY-->
+        </div><!-- FORM CONTAINER -->
     </div>
-    <div>
-      <label for="password">Senha:</label>
-      <input type="password" name="password" id="password" required>
-    </div>
-    <div>
-      <input type="submit" value="Criar Usuário">
-    </div>
-  </form>
+        <!-- Modal -->
+        <div id="modal" class="modal">
+          <div class="modal-content">
+              <h3 class="modal-title">Bem-vindo à Dashboard!</h3>
+              <p>Esse é o seu primeiro acesso ao sistema. Será necessário configurar um login e senha para acessar a plataforma.</p>
+              <button id="modal-close" class="modal-close">OK</button>
+          </div>
+      </div>
+
+    <script>
+      // Abrir o modal ao carregar a página
+      window.addEventListener('DOMContentLoaded', function () {
+          const modal = document.getElementById('modal');
+          const modalClose = document.getElementById('modal-close');
+
+          modal.style.display = 'block';
+
+          modalClose.addEventListener('click', function () {
+              modal.style.display = 'none';
+          });
+      });
+
+      const form = document.querySelector('.the-form');
+      const passwordInput = document.getElementById('password');
+      const confirmPasswordInput = document.getElementById('confirm-password');
+
+      form.addEventListener('submit', function (event) {
+          const password = passwordInput.value;
+          const confirmPassword = confirmPasswordInput.value;
+
+          if (password !== confirmPassword) {
+              event.preventDefault();
+              alert('As senhas não coincidem. Por favor, digite novamente.');
+          }
+      });
+
+
+  </script>
 </body>
 </html>

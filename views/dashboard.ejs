@@ -6,6 +6,32 @@
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
+
+  <div class="menu" id="menuContainer">
+    <div class="menu" id="intervaloTempoDiv">
+      <label for="timeInterval">Intervalo de tempo:</label>
+      <select class='timeInterval' id="timeInterval">
+        <option value="5">5s</option>
+        <option value="30">30s</option>
+        <option value="60">1min</option>
+        <option value="300">5min</option>
+        <option value="600">10min</option>
+        <option value="1800">30min</option>
+        <option value="3600">1h</option>
+      </select>
+    </div>
+  
+    <div class="menu-dropdown">
+      <span><%= usuario %></span>
+      <div class="dropdown-content">
+        <p class="change-password">Alterar senha</p>
+        <p class="logout">Sair</p>
+      </div>
+    </div>    
+  </div>
+
+
+
   <div class="status-block">
     <h1 class="h1-tittle"><ion-icon name="stats-chart-outline"></ion-icon> Dashboard de Telefonia <ion-icon name="stats-chart-outline"></ion-icon></h1>
     <div class="status-info">
@@ -25,18 +51,6 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="menu" id="intervaloTempoDiv">
-    <label for="timeInterval">Intervalo de tempo:</label>
-    <select class='timeInterval' id="timeInterval">
-      <option value="5">5s</option>
-      <option value="30">30s</option>
-      <option value="60">1min</option>
-      <option value="300">5min</option>
-      <option value="600">10min</option>
-      <option value="1800">30min</option>
-      <option value="3600">1h</option>
-    </select>
   </div>
   <h1 class="subtitle">Ramais</h1>
 
@@ -130,11 +144,15 @@
           var ramalDestino = parts[5];
           var tronco = parts[8];
         %>
+        <div class="info-block-chamadasAndamento">
         <li>O ramal <%= ramalOrigem %> está ligando para <%= ramalDestino %> pelo tronco <%= tronco %></li>
         <% }); %>
+        </div>
       </ul>
       <% } else { %>
+        <div class="info-block-chamadasAndamento">
       <p>Nenhuma ligação em andamento</p>
+        </div>
       <% } %>
     </div>
   </div>
@@ -517,7 +535,7 @@ socket.on('chamadasAndamentoEntradaUpdated', (chamadasEntradaData) => {
 // Receber os logs atualizados
 socket.on('logsUpdated', (logsData) => {
   const logsContainer = document.querySelector('.dashboard-item-logs');
-  logsContainer.innerHTML = ''; // Limpar o conteúdo anterior
+  logsContainer.innerHTML = ''; 
 
   if (logsData.logs && logsData.logs.length > 0) {
     logsData.logs.forEach((log) => {
@@ -533,15 +551,13 @@ socket.on('logsUpdated', (logsData) => {
 });
 
 
-
-// Receber os dados atualizados dos ramais livres e em ligação
 socket.on('peersInUse', (peersData) => {
   const containerPeersInUse = document.querySelector('.peersData-container');
-  containerPeersInUse.innerHTML = ''; // Limpar o conteúdo anterior
+  containerPeersInUse.innerHTML = ''; 
 
   if (peersData.peersInUse && peersData.peersInUse.length > 0) {
     const ul = document.createElement('ul');
-    ul.classList.add('peersData-container'); // Adicionar classe CSS à lista
+    ul.classList.add('peersData-container'); 
 
     peersData.peersInUse.forEach((peer) => {
       if (peer.status === 'Online') {
@@ -555,7 +571,7 @@ socket.on('peersInUse', (peersData) => {
         } else {
           li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está livre.`;
         }
-        li.classList.add('info-block-peersInUse'); // Adicionar classe CSS ao elemento de mensagem
+        li.classList.add('info-block-peersInUse'); 
         ul.appendChild(li);
       }
     });
@@ -564,7 +580,7 @@ socket.on('peersInUse', (peersData) => {
   } else {
     const noCall = document.createElement('li');
     noCall.textContent = 'Nenhum peer SIP em uso.';
-    noCall.classList.add('info-block-peersInUse'); // Adicionar classe CSS ao elemento
+    noCall.classList.add('info-block-peersInUse');
     containerPeersInUse.appendChild(noCall);
   }
 });
@@ -593,17 +609,33 @@ timeIntervalSelect.addEventListener("change", function () {
     });
 });
 
-// Função para rolar até o final do elemento
 function scrollToEnd(element) {
   element.scrollTop = element.scrollHeight;
 }
 
-// Rolar para o final do elemento .dashboard-item-logs quando a página carregar
 window.addEventListener('load', function() {
   var logsContainer = document.querySelector('.dashboard-item-logs');
   scrollToEnd(logsContainer);
 });
 
+// Obtenha os elementos relevantes
+const changePasswordOption = document.querySelector('.change-password');
+const logoutOption = document.querySelector('.logout');
+
+// Manipule o evento de clique para "Alterar senha"
+changePasswordOption.addEventListener('click', () => {
+  window.location.href = '/change-password'; // Redirecione para /change-password
+});
+
+// Manipule o evento de clique para "Sair"
+logoutOption.addEventListener('click', () => {
+  // Crie um formulário oculto para enviar uma solicitação POST para /logout
+  const form = document.createElement('form');
+  form.method = 'GET';
+  form.action = '/logout';
+  document.body.appendChild(form);
+  form.submit();
+});
 
 </script>
 </body>
