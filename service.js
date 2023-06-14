@@ -6,8 +6,8 @@ const AMI = require('asterisk-manager');
 const amiConfig = {
   host: 'localhost',
   port: 5038,
-  username: 'test',
-  password: 'test'
+  username: 'monitoramento',
+  password: 'monitoramento'
 };
 
 // Criar a instância do AMI fora das funções
