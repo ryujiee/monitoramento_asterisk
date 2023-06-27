@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const https = require('https');
-const {getLogs, getTotalTroncos, getTotalRamais, getQuantidadeLigacoes, checkAsteriskStatus, getAsteriskUptime, getOfflineAndOnlinePeers, getChamadasEmAndamento, getSIPPeersInUse, getPeerOwner} = require('./service');
+const {getAtendimentosAguardandoUltimas24Horas, getAtendimentosAbertosUltimas24Horas, getAtendimentosFinalizadoUltimas24Horas, getAtendimentosRecebidosUltimas24Horas, getLogs, getTotalTroncos, getTotalRamais, getQuantidadeLigacoes, checkAsteriskStatus, getAsteriskUptime, getOfflineAndOnlinePeers, getChamadasEmAndamento, getSIPPeersInUse, getPeerOwner} = require('./service');
 const sslConfig = require('./SSL/sslConfig');
 
 // Criação do servidor HTTPS
@@ -179,8 +179,6 @@ app.get('/logout', function (req, res){
   });
 });
 
-
-
   app.post('/login', passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/login'
@@ -205,6 +203,10 @@ app.get('/logout', function (req, res){
       const peersInUse = await getSIPPeersInUse();
       const totalTroncos = await getTotalTroncos();
       const logs = getLogs();
+      const atendimentosRecebidosUltimas24Horas = await getAtendimentosRecebidosUltimas24Horas()
+      const atendimentosFinalizadosUltimas24Horas = await getAtendimentosFinalizadoUltimas24Horas()
+      const atendimentosAbertosUltimas24Horas = await getAtendimentosAbertosUltimas24Horas()
+      const atendimentosAguardandoUltimas24Horas = await getAtendimentosAguardandoUltimas24Horas()
             for (const peer of peersInUse) {
                 if (peer.inUse !== '0/0/0') {
                     const owner = await getPeerOwner(peer.peerName);
@@ -212,7 +214,8 @@ app.get('/logout', function (req, res){
                     peer.owner = ownerWithoutTags;
                 }
             }
-        res.render('dashboard', {usuario, ramaisOnline, ramaisOffline, totalTroncos, mensagemChamadasEmAndamentoEntrada, totalRamaisData, quantidadeLigacoes, asteriskStatus, asteriskUptime, ramaisData, totalOffline, totalOnline, totalRamais, mensagemChamadasEmAndamento, peersInUse, logs});
+
+        res.render('dashboard', {atendimentosAguardandoUltimas24Horas, atendimentosAbertosUltimas24Horas, atendimentosFinalizadosUltimas24Horas, atendimentosRecebidosUltimas24Horas, usuario, ramaisOnline, ramaisOffline, totalTroncos, mensagemChamadasEmAndamentoEntrada, totalRamaisData, quantidadeLigacoes, asteriskStatus, asteriskUptime, ramaisData, totalOffline, totalOnline, totalRamais, mensagemChamadasEmAndamento, peersInUse, logs});
       });
 
     const updateData = async () => {
@@ -231,6 +234,10 @@ app.get('/logout', function (req, res){
             const mensagemChamadasEmAndamentoEntrada = chamadasEmAndamento.mensagens_entrada;
             const peersInUse = await getSIPPeersInUse();
             const totalTroncos = await getTotalTroncos();
+            const atendimentosRecebidosUltimas24Horas = await getAtendimentosRecebidosUltimas24Horas()
+            const atendimentosFinalizadosUltimas24Horas = await getAtendimentosFinalizadoUltimas24Horas()
+            const atendimentosAbertosUltimas24Horas = await getAtendimentosAbertosUltimas24Horas()
+            const atendimentosAguardandoUltimas24Horas = await getAtendimentosAguardandoUltimas24Horas()
             logs = getLogs();
             for (const peer of peersInUse) {
                 if (peer.inUse !== '0/0/0') {
@@ -243,7 +250,7 @@ app.get('/logout', function (req, res){
             }
 
             // Emitir os dados atualizados para os clientes conectados
-            io.emit('dataUpdated', {totalRamaisData, quantidadeLigacoes, asteriskStatus, asteriskUptime, ramaisData, ramaisOffline, totalOffline, totalOnline, totalRamais, peersInUse, totalTroncos, logs});
+            io.emit('dataUpdated', {atendimentosAguardandoUltimas24Horas, atendimentosAbertosUltimas24Horas, atendimentosFinalizadosUltimas24Horas, atendimentosRecebidosUltimas24Horas, totalRamaisData, quantidadeLigacoes, asteriskStatus, asteriskUptime, ramaisData, ramaisOffline, totalOffline, totalOnline, totalRamais, peersInUse, totalTroncos, logs});
             io.emit('ramaisOnlineUpdated', {ramaisOnline: ramaisOnline});
             io.emit('ramaisOfflineUpdated', {ramaisOffline: ramaisOffline});
             io.emit('chamadasAndamentoUpdated', {mensagemChamadasEmAndamento: mensagemChamadasEmAndamento});
@@ -261,7 +268,6 @@ app.get('/logout', function (req, res){
             selectedValue = 5;
         }
         updateInterval(selectedValue);
-        console.log(selectedValue);
         res.sendStatus(200);
     });
     

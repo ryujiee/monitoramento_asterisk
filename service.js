@@ -2,6 +2,8 @@ const fs = require('fs');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const AMI = require('asterisk-manager');
+const mongoose = require('mongoose');
+
 
 const amiConfig = {
   host: 'localhost',
@@ -482,6 +484,80 @@ const getLogs = () => {
 }
 
 
+const getAtendimentosRecebidosUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      abertoPor: 'contato',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+const getAtendimentosFinalizadoUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      status: 'F',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+const getAtendimentosAbertosUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      abertoPor: 'atendente',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+const getAtendimentosAguardandoUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      status: 'AG',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+
+
 module.exports = {
     getTotalRamais,
     getQuantidadeLigacoes,
@@ -492,5 +568,9 @@ module.exports = {
     getSIPPeersInUse,
     getPeerOwner,
     getTotalTroncos,
-    getLogs
-};
+    getLogs,
+    getAtendimentosRecebidosUltimas24Horas,
+    getAtendimentosFinalizadoUltimas24Horas,
+    getAtendimentosAbertosUltimas24Horas,
+    getAtendimentosAguardandoUltimas24Horas
+  };
