@@ -54,7 +54,12 @@
   </div>
   <h1 class="subtitle">Ramais</h1>
 
-  <div class="dashboard-container">
+  <div class="dashboard-menu" onclick="toggleDashboard('.ramais-container')">
+    <span class="menu-label">Recolher</span>
+    <span class="arrow-icon arrow-down"></span>
+  </div>
+  
+  <div class="ramais-container dashboard-container">
     <div class="dashboard-item">
       <h2><ion-icon name="podium-outline"></ion-icon> Gráfico de Ramais Online/Offline</h2>
       <div class="chart-container">
@@ -76,7 +81,7 @@
           <h2>Offline</h2>
           <p id="offline"><%= totalOffline %></p>
         </div>
-      </div>      
+      </div>
     </div>
     <div class="dashboard-item">
       <h2><ion-icon name="cloud-offline-outline"></ion-icon> Ramais Offline</h2>
@@ -87,7 +92,7 @@
               <ul>
                 <li><%= ramal %></li>
               </ul>
-            </div>      
+            </div>
           <% }); %>
         <% } else { %>
           <div class="info-block-ramaisOffline">
@@ -95,7 +100,7 @@
             <p>Não há ramais offline no momento.</p>
           </div>
         <% } %>
-    </div>      
+      </div>
     </div>
     <div class="dashboard-item">
       <h2><ion-icon name="chevron-down-outline"></ion-icon> Ramais Online</h2>
@@ -104,11 +109,11 @@
           <ul>
             <% ramaisOnline.forEach(function (ramal) { %>
               <div class="info-block-onlineRamais">
-              <li><%= ramal %></li>
-             </div>
-
+                <li><%= ramal %></li>
+              </div>
             <% }); %>
           </ul>
+        </div>
       <% } else { %>
         <div class="info-block-onlineRamais">
           <p>Nenhum ramal online</p>
@@ -116,22 +121,41 @@
       <% } %>
     </div>
   </div>
-  </div>
-
-
-
+  
+  
   <h1 class="subtitle">Ligações</h1>
-  <div class="dashboard-container">
-
+  
+  <div class="dashboard-menu" onclick="toggleDashboard('.ligacoes-container')">
+    <span class="menu-label">Recolher</span>
+    <span class="arrow-icon arrow-down"></span>
+  </div>
+  
+  <div class="ligacoes-container dashboard-container">
     <div class="dashboard-item">
-      <h2><ion-icon name="call-outline"></ion-icon> Ligações Ativas</h2>
+      <h2><ion-icon name="call-outline"></ion-icon> Total Ligações <p style="color: #999; font-size: 12px; margin-bottom: 5px;">(Informações das últimas 24 horas)</p></h2>
       <div class="container">
         <div class="info-block">
-          <h2>Total</h2>
+          <h2>Ativas</h2>
           <p id="quantidadeLigacoes"><%= quantidadeLigacoes %></p>
         </div>
-      </div>      
-    </div>
+        <div class="info-block">
+          <h2>Finalizadas</h2>
+          <p id="atendimentosFinalizadosUltimas24Horas"><%= atendimentosFinalizadosUltimas24Horas %></p>
+        </div>
+        <div class="info-block">
+          <h2>Recebidas</h2>
+          <p id="atendimentosRecebidosUltimas24Horas"><%= atendimentosRecebidosUltimas24Horas %></p>
+        </div>
+        <div class="info-block">
+          <h2>Realizadas</h2>
+          <p id="atendimentosAbertosUltimas24Horas"><%= atendimentosAbertosUltimas24Horas %></p>
+        </div>
+        <div class="info-block">
+          <h2>Na fila</h2>
+          <p id="atendimentosAguardandoUltimas24Horas"><%= atendimentosAguardandoUltimas24Horas %></p>
+        </div>
+      </div>
+    </div>  
 
   <div class="dashboard-item">
     <h2>Ligações de Saída em Andamento</h2>
@@ -164,9 +188,13 @@
         <% peersInUse.forEach(function (peer) { %>
           <div class="peersData-container">
           <% if (peer.inUse !== '0/0/0' && peer.status === 'Online') { %>
+            <div class="info-block-chamadasAndamento">
             <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está ocupado.</li>
+          </div>
           <% } else if (peer.status === 'Online') { %>
+            <div class="info-block-chamadasAndamento">
             <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está livre.</li>
+          </div>
           <% } %>
         <% }); %>
       </ul>
@@ -193,7 +221,12 @@
 
   <h1 class="subtitle">Troncos SIP</h1>
 
-  <div class="dashboard-container">
+  <div class="dashboard-menu" onclick="toggleDashboard('.troncos-container')">
+    <span class="menu-label">Recolher</span>
+    <span class="arrow-icon arrow-down"></span>
+  </div>
+
+  <div class="troncos-container dashboard-container">
     <div class="dashboard-item">
       <h2><ion-icon name="podium-outline"></ion-icon> Gráfico de Troncos SIP Online/Offline</h2>
       <div class="chart-container">
@@ -242,14 +275,14 @@
         <div class="container-onlineTroncos">
           <ul>
             <% totalTroncos.troncosOnline.forEach(function (tronco) { %>
-              <div class="info-block-onlineTroncos">
-              <li><%= tronco %></li>
+              <div class="info-block-onlineRamais">
+                <li><%= tronco %></li>
              </div>
 
             <% }); %>
           </ul>
       <% } else { %>
-        <div class="info-block-onlineTroncos">
+        <div class="info-block-onlineRamais">
           <p>Nenhum tronco online</p>
         </div>
       <% } %>
@@ -368,10 +401,13 @@ socket.on('dataUpdated', (data) => {
   document.getElementById('online').textContent = data.totalOnline;
   document.getElementById('offline').textContent = data.totalOffline;
   document.getElementById('quantidadeLigacoes').textContent = data.quantidadeLigacoes;
+  document.getElementById('atendimentosFinalizadosUltimas24Horas').textContent = data.atendimentosFinalizadosUltimas24Horas;
+  document.getElementById('atendimentosRecebidosUltimas24Horas').textContent = data.atendimentosRecebidosUltimas24Horas;
+  document.getElementById('atendimentosAguardandoUltimas24Horas').textContent = data.atendimentosAguardandoUltimas24Horas;
+  document.getElementById('atendimentosAbertosUltimas24Horas').textContent = data.atendimentosAbertosUltimas24Horas;
   document.getElementById('totalTroncos').textContent = data.totalTroncos.totalTroncos;
   document.getElementById('troncosOnline').textContent = data.totalTroncos.troncosOnline.length;
   document.getElementById('troncosOffline').textContent = data.totalTroncos.troncosOffline.length;
-
 
   // Chamar a função de atualização do dashboard com os dados recebidos
   updateDashboard(data);
@@ -386,7 +422,7 @@ socket.on('ramaisOfflineUpdated', (ramaisOfflineData) => {
 
   if (ramaisOfflineData.ramaisOffline && ramaisOfflineData.ramaisOffline.length > 0) {
     const ul = document.createElement('ul');
-    ul.classList.add('container-offlineRamais'); // Adicionar classe CSS à lista
+    ul.classList.add('offlineRamais'); // Adicionar classe CSS à lista
 
     ramaisOfflineData.ramaisOffline.forEach((ramal) => {
       const li = document.createElement('li');
@@ -463,7 +499,7 @@ socket.on('ramaisOnlineUpdated', (ramaisOnlineData) => {
 
   if (ramaisOnlineData.ramaisOnline && ramaisOnlineData.ramaisOnline.length > 0) {
     const ul = document.createElement('ul');
-    ul.classList.add('container-onlineRamais'); // Adicionar classe CSS à lista
+    ul.classList.add('onlineRamais'); // Adicionar classe CSS à lista
 
     ramaisOnlineData.ramaisOnline.forEach((ramal) => {
       const li = document.createElement('li');
@@ -565,13 +601,16 @@ socket.on('peersInUse', (peersData) => {
         if (peer.inUse !== '0/0/0') {
           if (peer.owner) {
             li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está ocupado.`;
+            li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
           } else {
             li.textContent = `O ramal ${peer.peerName} está ocupado.`;
+            li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
           }
         } else {
           li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está livre.`;
+          li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
         }
-        li.classList.add('info-block-peersInUse'); 
+        li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
         ul.appendChild(li);
       }
     });
@@ -636,6 +675,33 @@ logoutOption.addEventListener('click', () => {
   document.body.appendChild(form);
   form.submit();
 });
+
+const dashboardContainer = document.querySelector('.dashboard-container');
+
+dashboardContainer.addEventListener('click', function() {
+  this.classList.toggle('collapsed');
+});
+
+
+
+function toggleDashboard(selector) {
+  var container = document.querySelector(selector);
+  var arrowIcon = container.previousElementSibling.querySelector('.arrow-icon');
+  var menuLabel = container.previousElementSibling.querySelector('.menu-label');
+
+  if (container.classList.contains('collapsed')) {
+    container.classList.remove('collapsed');
+    container.style.maxHeight = container.scrollHeight + 'px';
+    menuLabel.textContent = 'Recolher';
+    arrowIcon.classList.add('arrow-up');
+  } else {
+    container.classList.add('collapsed');
+    container.style.maxHeight = '0';
+    menuLabel.textContent = 'Ver mais';
+    arrowIcon.classList.remove('arrow-up');
+  }
+}
+
 
 </script>
 </body>
