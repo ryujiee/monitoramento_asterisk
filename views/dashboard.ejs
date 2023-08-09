@@ -120,7 +120,9 @@
         </div>
       <% } %>
     </div>
+    <div class="resize-handle"></div>
   </div>
+
   
   
   <h1 class="subtitle">Ligações</h1>
@@ -169,7 +171,7 @@
           var tronco = parts[8];
         %>
         <div class="info-block-chamadasAndamento">
-        <li>O ramal <%= ramalOrigem %> está ligando para <%= ramalDestino %> pelo tronco <%= tronco %></li>
+        <li>O ramal <span class="livre"><%= ramalOrigem %></span> está ligando para <span class="livre"><%= ramalDestino %></span> pelo tronco <span class="livre"><%= tronco %></span></li>
         <% }); %>
         </div>
       </ul>
@@ -189,12 +191,12 @@
           <div class="peersData-container">
           <% if (peer.inUse !== '0/0/0' && peer.status === 'Online') { %>
             <div class="info-block-chamadasAndamento">
-            <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está ocupado.</li>
-          </div>
+              <li>O ramal <span class="livre"><%= peer.peerName %></span> de <span class="livre"><%= peer.owner %></span> está <span class="ocupado">ocupado</span>.</li>
+            </div>
           <% } else if (peer.status === 'Online') { %>
             <div class="info-block-chamadasAndamento">
-            <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está livre.</li>
-          </div>
+              <li>O ramal <span class="livre"><%= peer.peerName %></span> de <span class="livre"><%= peer.owner %></span>  está <span class="livre">livre</span>.</li>
+            </div>
           <% } %>
         <% }); %>
       </ul>
@@ -202,21 +204,23 @@
       <p>Nenhum peer SIP em uso.</p>
     <% } %>
   </div>
+  
 
   <div class="dashboard-item">
     <h2>Ligações de Entrada em Andamento</h2>
-    <div class="container-chamadasEntradaAndamento">
-      <% if (mensagemChamadasEmAndamentoEntrada && mensagemChamadasEmAndamentoEntrada.length > 0) { %>
-      <ul>
+    <% if (mensagemChamadasEmAndamentoEntrada && mensagemChamadasEmAndamentoEntrada.length > 0) { %>
+      <ul class="ul-chamadas-entrada">
         <% mensagemChamadasEmAndamentoEntrada.forEach(function (mensagem_entrada) { %>
-        <li>O ramal <%= mensagem_entrada %></li>
+          <li><%= mensagem_entrada %></li>
         <% }); %>
       </ul>
-      <% } else { %>
-      <p>Nenhuma ligação em andamento</p>
-      <% } %>
-    </div>
+    <% } else { %>
+      <div class="container-chamadasEntradaAndamento">
+        <p>Nenhuma ligação em andamento</p>
+      </div>
+    <% } %>
   </div>
+  <div class="resize-handle"></div>
   </div>
 
   <h1 class="subtitle">Troncos SIP</h1>
@@ -288,6 +292,7 @@
       <% } %>
     </div>
   </div>
+  <div class="resize-handle"></div>
 
   </div>
   <h1 class="subtitle">Logs asterisk</h1>
@@ -537,7 +542,7 @@ socket.on('chamadasAndamentoUpdated', (chamadasData) => {
     containerChamadasAndamento.appendChild(ul);
   } else {
     const noCall = document.createElement('li');
-    noCall.textContent = 'Nenhuma ligação em andamento';
+    noCall.textContent = 'Nenhuma ligação de saída em andamento';
     noCall.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
     containerChamadasAndamento.appendChild(noCall);
   }
@@ -545,28 +550,24 @@ socket.on('chamadasAndamentoUpdated', (chamadasData) => {
 
 // Receber os dados atualizados das chamadas de entrada em andamento
 socket.on('chamadasAndamentoEntradaUpdated', (chamadasEntradaData) => {
-  const containerChamadasEntradaAndamento = document.querySelector('.container-chamadasEntradaAndamento');
-  containerChamadasEntradaAndamento.innerHTML = ''; // Limpar o conteúdo anterior
+  const ulChamadasEntrada = document.querySelector('.ul-chamadas-entrada');
+  ulChamadasEntrada.innerHTML = ''; // Limpar o conteúdo anterior
 
   if (chamadasEntradaData.mensagemChamadasEmAndamentoEntrada && chamadasEntradaData.mensagemChamadasEmAndamentoEntrada.length > 0) {
-    const ul = document.createElement('ul');
-    ul.classList.add('container-chamadasAndamento'); // Adicionar classe CSS à lista
-
     chamadasEntradaData.mensagemChamadasEmAndamentoEntrada.forEach((mensagem_entrada) => {
       const li = document.createElement('li');
-      li.innerHTML  = mensagem_entrada;
+      li.innerHTML = mensagem_entrada;
       li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
-      ul.appendChild(li);
+      ulChamadasEntrada.appendChild(li);
     });
-
-    containerChamadasEntradaAndamento.appendChild(ul);
   } else {
     const noCall = document.createElement('li');
-    noCall.textContent = 'Nenhuma ligação em andamento';
+    noCall.textContent = 'Nenhuma ligação de entrada em andamento';
     noCall.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
-    containerChamadasEntradaAndamento.appendChild(noCall);
+    containerChamadasAndamento.appendChild(noCall);
   }
 });
+
 
 // Receber os logs atualizados
 socket.on('logsUpdated', (logsData) => {
@@ -600,14 +601,14 @@ socket.on('peersInUse', (peersData) => {
         const li = document.createElement('li');
         if (peer.inUse !== '0/0/0') {
           if (peer.owner) {
-            li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está ocupado.`;
+            li.innerHTML = `O ramal <span class="livre">${peer.peerName}</span> de <span class="livre">${peer.owner}</span> está </span class="ocupado">ocupado</span>.`;
             li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
           } else {
-            li.textContent = `O ramal ${peer.peerName} está ocupado.`;
+            li.innerHTML = `O ramal <span class="livre">${peer.peerName}</span> está <span class="ocupado">ocupado</span>.`;
             li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
           }
         } else {
-          li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está livre.`;
+          li.innerHTML = `O ramal <span class="livre">${peer.peerName}</span> de ${peer.owner} está <span class="livre">livre</span>.`;
           li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
         }
         li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
@@ -618,7 +619,7 @@ socket.on('peersInUse', (peersData) => {
     containerPeersInUse.appendChild(ul);
   } else {
     const noCall = document.createElement('li');
-    noCall.textContent = 'Nenhum peer SIP em uso.';
+    noCall.innerHTML = 'Nenhum peer SIP em uso.';
     noCall.classList.add('info-block-peersInUse');
     containerPeersInUse.appendChild(noCall);
   }
@@ -676,14 +677,6 @@ logoutOption.addEventListener('click', () => {
   form.submit();
 });
 
-const dashboardContainer = document.querySelector('.dashboard-container');
-
-dashboardContainer.addEventListener('click', function() {
-  this.classList.toggle('collapsed');
-});
-
-
-
 function toggleDashboard(selector) {
   var container = document.querySelector(selector);
   var arrowIcon = container.previousElementSibling.querySelector('.arrow-icon');
@@ -701,6 +694,31 @@ function toggleDashboard(selector) {
     arrowIcon.classList.remove('arrow-up');
   }
 }
+
+const resizeHandles = document.querySelectorAll('.resize-handle');
+const dashboardContainers = document.querySelectorAll('.dashboard-container');
+
+let activeResizeHandle = null;
+
+resizeHandles.forEach((handle, index) => {
+  handle.addEventListener('mousedown', (e) => {
+    activeResizeHandle = index;
+  });
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (activeResizeHandle !== null) {
+    const container = dashboardContainers[activeResizeHandle];
+    const newHeight = e.clientY - container.getBoundingClientRect().top;
+    container.style.height = `${newHeight}px`;
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  activeResizeHandle = null;
+});
+
+
 
 
 </script>

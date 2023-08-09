@@ -70,26 +70,42 @@ const getTotalRamais = async () => {
   };
   
 
-// Função para obter a quantidade de ligações simultâneas
-const getQuantidadeLigacoes = async () => {
-    return new Promise((resolve, reject) => {
+// Função para obter a quantidade de chamadas ativas
+const getQuantidadeChamadasAtivas = async () => {
+  return new Promise((resolve, reject) => {
+    ami.action({
+      action: 'command',
+      command: 'core show channels'
+    }, function (err, res) {
+      if (err) {
+        reject(err);
+        return;
+      }
 
-        ami.action({
-            action: 'command',
-            command: `core show channels concise`
-            }, function (err, res) {
-            if (err) {
-              reject(err);
-              return;
-            }
-            const outputLines = res.output;
+      const outputLines = res.output;
 
-            const lines = outputLines.length
-            const quantidadeLigacoes = Math.ceil(lines / 2);
-            resolve(quantidadeLigacoes);
+      let activeCalls = 0;
+
+      for (let i = 0; i < outputLines.length; i++) {
+        if (outputLines[i].includes(' active call')) {
+          const match = outputLines[i].match(/(\d+) active call/);
+          if (match) {
+            activeCalls = parseInt(match[1]);
+            break; // We found the count, so exit the loop
+          }
+        } else if (outputLines[i].includes(' active calls')) {
+          const match = outputLines[i].match(/(\d+) active calls/);
+          if (match) {
+            activeCalls = parseInt(match[1]);
+            break; // We found the count, so exit the loop
+          }
+        }
+      }
+      resolve(activeCalls);
     });
-})
+  });
 };
+
 
 // Verificar o status do serviço Asterisk
 const checkAsteriskStatus = async () => {
@@ -210,84 +226,82 @@ const getOfflineAndOnlinePeers = async () => {
 
 // Função para obter as chamadas em andamento
 const getChamadasEmAndamento = async () => {
-    return new Promise((resolve, reject) => {
-      try {
-        ami.action(
-          {
-            action: 'command',
-            command: `core show channels concise`,
-          },
-          function (err, res) {
-            if (err) {
-              reject(err);
-              return;
-            }
-            const linhas = res.output;
-  
-            if (!Array.isArray(linhas)) {
-              resolve({
-                chamadas: [],
-                mensagens: [],
-                mensagens_entrada: [],
-              });
-              return;
-            }
-  
-            const chamadas = [];
-            const mensagens = [];
-            const mensagens_entrada = [];
-  
-            linhas.forEach((linha) => {
-              const campos = linha.split('!');
-  
-              const chamada = {
-                canal: campos[0],
-                tipo: campos[1],
-                identificadorChamada: campos[2],
-                estado: campos[3],
-                status: campos[4],
-                acao: campos[5],
-                detalhes: campos[6],
-                chamador: campos[7],
-                chamado: campos[8],
-                campo1: campos[9],
-                campo2: campos[10],
-                campo3: campos[11],
-                campo4: campos[12],
-                campo5: campos[13],
-              };
-  
-              if (chamada.tipo === 'outbound' && chamada.acao === 'Dial') {
-                const identificadorChamadaArray = chamada.identificadorChamada.split('/');
-                const tronco = identificadorChamadaArray[0];
-                const chamado = identificadorChamadaArray[1];
-                const ramal = chamada.chamador;
-  
-                const mensagem = `O ramal ${ramal} está ligando para ${chamado} através do tronco ${tronco}.`;
-                mensagens.push(mensagem);
-              } if ( chamada.tipo == 'departamento' || chamada.tipo == 'transbordo') {
-                const regex = /^SIP\/(\d+)-/;
-                const match = chamada.canal.match(regex);
-                const tronco = match[1];
-                const mensagem_entrada = `Ligação de entrada ativa através do tronco ${tronco}.`;
-                mensagens_entrada.push(mensagem_entrada);
-              }
-  
-              chamadas.push(chamada);
-            });  
-            resolve({
-              chamadas,
-              mensagens,
-              mensagens_entrada,
-            });
+  return new Promise((resolve, reject) => {
+    try {
+      ami.action(
+        {
+          action: 'command',
+          command: `core show channels concise`,
+        },
+        function (err, res) {
+          if (err) {
+            reject(err);
+            return;
           }
-        );
-      } catch (err) {
-        console.log('Erro ao obter as chamadas em andamento:', err);
-        reject(err);
-      }
-    });
-  };
+          const outputLines = res.output;
+          console.log(outputLines)
+
+          // Ensure outputLines is an array
+          const linhas = Array.isArray(outputLines) ? outputLines : [outputLines];
+
+          const chamadas = [];
+          const mensagens = [];
+          const mensagens_entrada = [];
+
+          linhas.forEach((linha) => {
+            const campos = linha.split('!');
+
+            const chamada = {
+              canal: campos[0],
+              tipo: campos[1],
+              identificadorChamada: campos[2],
+              estado: campos[3],
+              status: campos[4],
+              acao: campos[5],
+              detalhes: campos[6],
+              chamador: campos[7],
+              chamado: campos[8],
+              campo1: campos[9],
+              campo2: campos[10],
+              campo3: campos[11],
+              campo4: campos[12],
+              campo5: campos[13],
+            };
+
+            if (chamada.tipo === 'outbound' && chamada.acao === 'Dial') {
+              const identificadorChamadaArray = chamada.identificadorChamada.split('/');
+              const tronco = identificadorChamadaArray[0];
+              const chamado = identificadorChamadaArray[1];
+              const ramal = chamada.chamador;
+
+              const mensagem = `O ramal <span class="ramal-chamador">${ramal}</span> está ligando para <span class="ramal-chamado">${chamado}</span> através do tronco <span class="ramal-tronco">${tronco}</span>.`;
+              mensagens.push(mensagem);
+            } else if (chamada.tipo === 'departamento' || chamada.tipo === 'transbordo' || chamada.tipo === 'macro-agi') {
+              const regex = /^SIP\/(\d+)-/;
+              const match = chamada.canal.match(regex);
+              const tronco = match[1];
+              const chamador = chamada.chamador
+              const mensagem_entrada = `<span class="ligacao-chamador">${chamador}</span> está em uma ligação ativa através do tronco <span class="ligacao-tronco">${tronco}</span>.`;
+              mensagens_entrada.push(mensagem_entrada);
+            }
+
+            chamadas.push(chamada);
+          });
+
+          resolve({
+            chamadas,
+            mensagens,
+            mensagens_entrada,
+          });
+        }
+      );
+    } catch (err) {
+      console.log('Erro ao obter as chamadas em andamento:', err);
+      reject(err);
+    }
+  });
+};
+
   
 
  const getSIPPeersInUse = async () => {
@@ -560,7 +574,7 @@ const getAtendimentosAguardandoUltimas24Horas = async () => {
 
 module.exports = {
     getTotalRamais,
-    getQuantidadeLigacoes,
+    getQuantidadeChamadasAtivas,
     checkAsteriskStatus,
     getAsteriskUptime,
     getOfflineAndOnlinePeers,

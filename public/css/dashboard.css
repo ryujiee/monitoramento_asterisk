@@ -3,6 +3,7 @@ body {
   background-color: #1a1c1d;
   color: #fff;
   font-family: Arial, sans-serif;
+  user-select: none;
 }
 
 .dashboard-menu {
@@ -31,7 +32,22 @@ body {
   transition: max-height 0.9s ease-in-out;
   max-height: 500px; /* Defina uma altura máxima para o container */
   overflow: hidden;
+  position: relative;
 }
+
+.resize-handle {
+  /* Estilos do controle de redimensionamento */
+  width: 80%;
+  height: 5px;
+  border-radius: 5px;
+  background-color: #555555;
+  cursor: ns-resize; /* Cursor vertical */
+  position: absolute;
+  bottom: 0;
+  left: 50%; /* Centralizar horizontalmente */
+  transform: translateX(-50%); /* Ajustar para centralizar horizontalmente */
+}
+
 
 .dashboard-container.open {
   max-height: none;
@@ -299,6 +315,8 @@ body {
   border-bottom-right-radius: 20px;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
+  cursor: pointer;
+
 }
 .container-chamadasEntradaAndamento {
   padding: 10px;
@@ -407,3 +425,64 @@ body {
 .menu-dropdown:hover .dropdown-content {
   display: block;
 }
+
+.ligacao-chamador {
+  color: green; /* Defina a cor desejada */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-tronco {
+  color: green; /* Defina a cor desejada */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-ramal {
+  color: green; /* Defina a cor desejada para o ramal */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-chamado {
+  color: green; /* Defina a cor desejada para o chamado */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-tronco {
+  color: green; /* Defina a cor desejada para o tronco */
+  font-weight: bold; /* Negrito */
+}
+
+.peer-name {
+  color: green; /* Defina a cor desejada para o nome do peer */
+  font-weight: bold; /* Negrito */
+}
+
+/* Estilo para o texto "ocupado" */
+.ocupado {
+  color: red; /* Define a cor vermelha para "ocupado" */
+  font-weight: bold; /* Negrito */
+}
+
+/* Estilo para o texto "livre" */
+.livre {
+  color: green; /* Defina a cor desejada para o nome do peer */
+  font-weight: bold; /* Negrito */
+}
+
+/* Estilo para o chamador do ramal */
+.ramal-chamador {
+  color: green; /* Cor do texto para o chamador */
+  font-weight: bold; /* Texto em negrito */
+}
+
+/* Estilo para o número chamado */
+.ramal-chamado {
+  color: green; /* Cor do texto para o número chamado */
+  font-weight: bold; /* Texto em negrito */
+}
+
+/* Estilo para o tronco */
+.ramal-tronco {
+  color: green; /* Cor do texto para o tronco */
+  font-weight: bold; /* Texto em negrito */
+}
+

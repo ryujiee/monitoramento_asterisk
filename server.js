@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
 const https = require('https');
-const {getAtendimentosAguardandoUltimas24Horas, getAtendimentosAbertosUltimas24Horas, getAtendimentosFinalizadoUltimas24Horas, getAtendimentosRecebidosUltimas24Horas, getLogs, getTotalTroncos, getTotalRamais, getQuantidadeLigacoes, checkAsteriskStatus, getAsteriskUptime, getOfflineAndOnlinePeers, getChamadasEmAndamento, getSIPPeersInUse, getPeerOwner} = require('./service');
+const {getAtendimentosAguardandoUltimas24Horas, getAtendimentosAbertosUltimas24Horas, getAtendimentosFinalizadoUltimas24Horas, getAtendimentosRecebidosUltimas24Horas, getLogs, getTotalTroncos, getTotalRamais, getQuantidadeChamadasAtivas, checkAsteriskStatus, getAsteriskUptime, getOfflineAndOnlinePeers, getChamadasEmAndamento, getSIPPeersInUse, getPeerOwner} = require('./service');
 const sslConfig = require('./SSL/sslConfig');
 
 // Criação do servidor HTTPS
@@ -188,7 +188,7 @@ app.get('/logout', function (req, res){
       const user = req.user
       const usuario = user.username
       const totalRamaisData = await getTotalRamais();
-      const quantidadeLigacoes = await getQuantidadeLigacoes();
+      const quantidadeLigacoes = await getQuantidadeChamadasAtivas();
       const asteriskStatus = await checkAsteriskStatus();
       const asteriskUptime = await getAsteriskUptime();
       const ramaisData = await getOfflineAndOnlinePeers();
@@ -220,7 +220,7 @@ app.get('/logout', function (req, res){
 
     const updateData = async () => {
             const totalRamaisData = await getTotalRamais();
-            const quantidadeLigacoes = await getQuantidadeLigacoes();
+            const quantidadeLigacoes = await getQuantidadeChamadasAtivas();
             const asteriskStatus = await checkAsteriskStatus();
             const asteriskUptime = await getAsteriskUptime();
             const ramaisData = await getOfflineAndOnlinePeers();
