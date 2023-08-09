@@ -239,7 +239,6 @@ const getChamadasEmAndamento = async () => {
             return;
           }
           const outputLines = res.output;
-          console.log(outputLines)
 
           // Ensure outputLines is an array
           const linhas = Array.isArray(outputLines) ? outputLines : [outputLines];
