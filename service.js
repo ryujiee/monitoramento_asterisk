@@ -8,7 +8,7 @@ const axios = require('axios'); // Importar o módulo axios
 
 const repoOwner = 'ryujiee';
 const repoName = 'monitoramento_asterisk';
-const appVersion = 'v0.0.0-alpha'; // Versão da sua aplicação
+const appVersion = 'v1.0.0-alpha'; // Versão da sua aplicação
 
 
 const amiConfig = {
