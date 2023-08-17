@@ -3,20 +3,84 @@ body {
   background-color: #1a1c1d;
   color: #fff;
   font-family: Arial, sans-serif;
+  user-select: none;
 }
+
+.dashboard-menu {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px;
+  cursor: pointer;
+  background-color: #262a2b;
+  border-radius: 5px;
+}
+
+.menu-label {
+  text-align: center;
+}
+
+.arrow-icon {
+  color: white;
+}
+
 .dashboard-container {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
   padding: 20px;
+  transition: max-height 0.9s ease-in-out;
+  position: relative;
+}
+
+
+.dashboard-container.open {
+  max-height: none;
+  transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out; /* Adicionamos a transição para o padding */
+  padding: 20px;
+}
+
+/* Removemos a transição para o ícone quando o container está aberto */
+.dashboard-container.open .arrow-icon {
+  transition: none;
+}
+
+.arrow-icon {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  transition: transform 0.3s ease-in-out; /* Alteramos a função de transição */
+}
+
+.arrow-up {
+  border-bottom: 8px solid #ffffff;
+  transform: rotate(180deg);
+}
+
+.arrow-down {
+  border-top: 8px solid #ffffff;
+}
+
+.dashboard-container.collapsed {
+  height: -5px; /* Largura mínima do dashboard-container recolhido */
 }
 .dashboard-item {
-  padding: 30px;
+  padding: 0; /* Remover padding para evitar espaçamento interno */
   background-color: #262a2b;
   border-radius: 30px;
+  transition: all 0.3s ease; /* Transição suave ao expandir/recolher */
+  cursor: pointer;
+  overflow: hidden; /* Adicionar overflow para evitar que os quadrados vazem */
+}
+
+
+.dashboard-container.collapsed .dashboard-item {
+  display: none; /* Oculta os itens recolhidos */
 }
 .dashboard-item h2 {
-  margin-top: 0;
+  text-align: center; /* Centralizar o texto */
+  margin-top: 15px; /* Adicionar margem superior de 10px */
   font-size: 18px;
 }
 .dashboard-item p {
@@ -34,8 +98,15 @@ body {
 
 .container {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  justify-content: center; /* Centralizar horizontalmente */
 }
+
+.container > * {
+  margin: 15px; /* Adicionar 15px de margem em todas as direções para criar um espaço de 30px entre os itens */
+  margin-bottom: 10px; /* Adicione o valor de espaçamento vertical desejado aqui */
+}
+
 .info-block {
   position: relative;
   background-color: #6330db;
@@ -47,6 +118,7 @@ body {
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
+
 .info-block:before, .info-block:after {
   content: '';
   position: absolute;
@@ -77,9 +149,16 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  height: 400px;
-  overflow-y: scroll;
+  max-height: 500px; /* Defina uma altura máxima para ativar a rolagem vertical */
+  overflow-y: auto; /* Ativar rolagem apenas quando necessário */
 }
+
+.offlineRamais {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
 .info-block-ramaisOffline {
   position: relative;
   background-color: #641008;
@@ -93,68 +172,90 @@ body {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
+  min-width: 100px;
 }
+
 .info-block-ramaisOffline:before, .info-block-ramaisOffline:after {
   content: '';
   position: absolute;
   background-color: #6330db;
 }
+
 .info-block-ramaisOffline:before {
   left: -10px;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
 }
+
 .info-block-ramaisOffline:after {
   right: -10px;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
 }
+
 .info-block-ramaisOffline p {
   font-size: 16px;
   font-weight: bold;
   color: #fff;
 }
-.container-onlineRamais {
+
+.onlineRamais{
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  height: 400px;
-  overflow-y: scroll;
 }
+.container-onlineRamais {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* Começar do canto esquerdo */
+  max-height: 500px; /* Defina uma altura máxima para ativar a rolagem vertical */
+  overflow-y: auto; /* Ativar rolagem apenas quando necessário */
+}
+
 .info-block-onlineRamais {
-  position: relative;
   background-color: #08911c92;
   border-radius: 10px;
-  padding: 5px;
-  width: calc(70% - 20px);
-  text-align: center;
-  margin-bottom: 15px;
+  padding: 10px;
+  width: calc(33.33% - 20px); /* Para que três quadrados caibam em uma linha */
+  margin: 0 10px 15px; /* Espaço horizontal de 10px e vertical de 15px */
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer;
+  text-align: center; /* Centralizar o texto verticalmente */
 }
-.info-block-onlineRamais:before, .info-block-onlineRamais:after {
-  content: '';
-  position: absolute;
-  background-color: #6330db;
+
+.callerid {
+  font-size: 14px;
+  color: rgb(212, 212, 212);
+  overflow-y: hidden; /* Ocultar qualquer conteúdo que extrapola o bloco */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* Define o número máximo de linhas */
+  max-height: 2.6em; /* Altura máxima para 2 linhas de texto */
+  text-overflow: ellipsis; /* Adicionar reticências no final do texto cortado */
 }
-.info-block-onlineRamais:before {
-  left: -10px;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
+
+
+.info-block-onlineRamais p {
+  margin: 0; /* Remover margens padrão do parágrafo para melhor ajuste */
+  white-space: nowrap; /* Impedir que o texto quebre em várias linhas */
+  overflow: hidden; /* Ocultar qualquer conteúdo que extrapola o bloco */
+  text-overflow: ellipsis; /* Adicionar reticências (...) ao final do texto cortado */
 }
-.info-block-onlineRamais:after {
-  right: -10px;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
+
+.ramal {
+  font-weight: bold;
+  font-size: 18px; /* Tamanho maior para o ramal */
+  margin-bottom: 5px; /* Espaço entre o ramal e o callerid */
 }
+
 .info-block-onlineRamais p {
   font-size: 16px;
   font-weight: bold;
   color: #fff;
 }
+
 .status-block {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -214,8 +315,9 @@ body {
   flex-wrap: wrap;
   justify-content: space-between;
   height: 400px;
-  overflow-y: scroll;
   flex-direction: column;
+  max-height: 500px; /* Defina uma altura máxima para ativar a rolagem vertical */
+  overflow-y: auto; /* Ativar rolagem apenas quando necessário */
 }
 .info-block-chamadasAndamento{
   padding: 10px;
@@ -224,6 +326,8 @@ body {
   border-bottom-right-radius: 20px;
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
+  cursor: pointer;
+
 }
 .container-chamadasEntradaAndamento {
   padding: 10px;
@@ -233,53 +337,28 @@ body {
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
 }
-.dashboard-item-logs {
-  padding: 30px;
-  background-color: #000;
-  color: #0f0;
-  border-radius: 30px;
-  width: 94vw;
-  left: 0;
-  right: 0;
-  height: 400px;
-  overflow-y: scroll;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  font-family: monospace;
-  white-space: pre-line;
-  line-height: 1.2;
-  font-size: 14px;
-  font-weight: bold;
-}
-.dashboard-item-logs p {
-  margin: 0;
-}
-.dashboard-item-logs::before {
-  content: "$";
-  margin-right: 5px;
-  color: #f0f;
-}
-.dashboard-item-logs::selection {
-  background-color: #0f0;
-  color: #000;
-}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background-color: #545454;
+  background-color: #3b3b3b;
 }
 ::-webkit-scrollbar-thumb {
   background-color: #757575;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #3b3b3b;
+  background-color: #757575;
 }
-.peersData-container{
-  padding: 10px;
-  overflow-y: scroll;
-  height: 400px;
+
+.ocupado {
+  color: red;
 }
+
+.livre {
+  color: green;
+}
+
 
 #menuContainer {
   display: flex;
@@ -326,3 +405,267 @@ body {
 .menu-dropdown:hover .dropdown-content {
   display: block;
 }
+
+.ligacao-chamador {
+  color: green; /* Defina a cor desejada */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-tronco {
+  color: green; /* Defina a cor desejada */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-ramal {
+  color: green; /* Defina a cor desejada para o ramal */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-chamado {
+  color: green; /* Defina a cor desejada para o chamado */
+  font-weight: bold; /* Negrito */
+}
+
+.ligacao-tronco {
+  color: green; /* Defina a cor desejada para o tronco */
+  font-weight: bold; /* Negrito */
+}
+
+.peer-name {
+  color: green; /* Defina a cor desejada para o nome do peer */
+  font-weight: bold; /* Negrito */
+}
+
+/* Estilo para o texto "ocupado" */
+.ocupado {
+  color: rgb(238, 57, 57); /* Define a cor vermelha para "ocupado" */
+  font-weight: bold; /* Negrito */
+}
+
+/* Estilo para o texto "livre" */
+.livre {
+  color: rgb(0, 199, 0); /* Defina a cor desejada para o nome do peer */
+  font-weight: bold; /* Negrito */
+}
+
+/* Estilo para o chamador do ramal */
+.ramal-chamador {
+  color: rgb(2, 190, 2); /* Cor do texto para o chamador */
+  font-weight: bold; /* Texto em negrito */
+}
+
+/* Estilo para o número chamado */
+.ramal-chamado {
+  color: rgb(0, 196, 0); /* Cor do texto para o número chamado */
+  font-weight: bold; /* Texto em negrito */
+}
+
+/* Estilo para o tronco */
+.ramal-tronco {
+  color: green; /* Cor do texto para o tronco */
+  font-weight: bold; /* Texto em negrito */
+}
+
+/* Estilização para a barra de pesquisa */
+#searchInput, #offlineSearchInput, #usersSearchInput {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  margin: 10px auto; /* Centralizar horizontalmente e adicionar margem inferior */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.5; /* Centralizar verticalmente o texto */
+  background-color: #474747;
+  color: #333; /* Alterar a cor do texto */
+}
+
+.dark-mode {
+  background-color: rgb(255, 255, 255);
+  color: rgb(0, 0, 0);
+  /* Outros estilos de modo escuro aqui */
+}
+
+.dark-mode .dashboard-menu {
+  background-color: #cccccc;
+  color: rgb(0, 0, 0);
+}
+
+.dark-mode .dashboard-item {
+  background-color: #cccccc;
+  color: rgb(0, 0, 0);
+}
+
+.dark-mode #searchInput,
+.dark-mode #offlineSearchInput,
+.dark-mode #usersSearchInput {
+  background-color: #b3b3b3;
+  color: rgb(0, 0, 0);
+  /* Outros estilos de modo escuro aqui */
+}
+
+.dark-mode .info-block-ramaisOffline {
+  background-color: #992b30; /* Vermelho mais escuro */
+  color: white; /* Texto branco */
+  /* Outros estilos específicos de modo escuro */
+}
+
+.dark-mode .info-block-onlineRamais {
+  background-color: #27a045; /* Vermelho mais escuro */
+  color: white; /* Texto branco */
+  /* Outros estilos específicos de modo escuro */
+}
+.dark-mode .h1-tittle{
+  color: black;
+}
+
+.dark-mode .info-block-chamadasAndamento{
+  color: white;
+  background-color: #919191;
+}
+
+/* Estilização para o botão de alternar modo */
+.toggle-button {
+  position: relative;
+  top: 10px;
+  left: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 5px;
+  transition: transform 0.3s ease;
+}
+
+.sun {
+  font-size: 40px;
+  color: white;
+}
+
+.moon {
+  font-size: 40px;
+  color: black;
+}
+
+.dark-mode .timeInterval{
+  color: black;
+  background-color: #cccccc;
+}
+
+.dark-mode .dropdown-content{
+  color: black;
+  background-color: #cccccc;
+}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.wrapper a {
+  text-decoration: none;
+  padding: 7px;
+  background-color: #262a2b;
+  border-radius: 3px;
+  color: white;
+}
+.modal {
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(77, 77, 77, 0.7);
+  transition: all 0.4s;
+}
+ 
+.modal:target {
+  visibility: visible;
+  opacity: 1;
+}
+
+.modal-content {
+  background-color: #262a2b;
+  padding: 50px;
+  border-radius:5%;
+  border: 1px solid #888;
+  box-shadow: 0px 4px 8px 0px rgba(0, 0, 0, 0.2);
+  max-width: 500px; /* Defina o tamanho máximo desejado */
+  width: 100%;
+  text-align: center;
+  color: white;
+}
+
+.close {
+  color: #aaaaaa;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+
+.modal__footer {
+  text-decoration: none;
+  margin-top: 10px;
+}
+
+.modal__footer-btn-close {
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.3s;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+
+.modal__footer-btn-close:hover {
+  color: #afafaf;
+}
+
+
+.modal__input-submit {
+  background-color: #4287b4;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.modal__input-submit:hover {
+  background-color: #2980b9;
+}
+
+.green-text {
+  color: green;
+}
+
