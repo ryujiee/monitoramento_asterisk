@@ -4,8 +4,23 @@
   <title>Dashboard</title>
   <link rel="stylesheet" href="/css/dashboard.css">
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
 </head>
 <body>
+
+  <!-- Verifica se a variável hash é 'update' e redireciona para a seção #update -->
+<% if (hash === 'update') { %>
+  <script>
+    window.location.hash = 'update';
+  </script>
+<% } %>
+
+
+  <button class="toggle-button" onclick="toggleDarkMode()">
+    <span class="icon moon"><ion-icon name="sunny-outline"></ion-icon></span>
+    <span class="icon sun"><ion-icon name="moon-outline"></ion-icon></span>
+  </button>
+
 
   <div class="menu" id="menuContainer">
     <div class="menu" id="intervaloTempoDiv">
@@ -30,7 +45,56 @@
     </div>    
   </div>
 
+ <!-- botão para abrir -->
+ <div class="wrapper">
+  <a href="#update">Verificar Atualizações</a>
+</div>
 
+<div id="update" class="modal">
+  <div class="modal-content">
+    <h1>Dashboard Telefonia</h1>
+    <p>v0.1.0-alpha</p>
+    <div id="updateStatus">
+      <p class="green-text"><%= updateMessage %></p>
+    </div>
+
+    <% if (updateMessage === "Há uma atualização disponível.") { %>
+      <form id="updateToLatestVersionForm" action="/update" method="POST">
+        <input class="modal__input-submit" type="submit" value="Atualizar para a última versão">
+      </form>
+    <% } else if (updateMessage !== "Atualização disponível.") { %>
+      <form id="updateForm" action="/check-updates" method="POST">
+        <input class="modal__input-submit" type="submit" value="Verificar Atualizações">
+      </form>
+    <% } %>
+
+    <div class="modal__footer">
+      <a href="#" class="modal__footer-btn-close">Fechar</a>
+    </div>
+
+    <a href="#" class="modal__close">&times;</a>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const updateForm = document.getElementById('updateForm');
+    const updateToLatestVersionForm = document.getElementById('updateToLatestVersionForm');
+
+    updateForm.addEventListener('submit', function () {
+      updateForm.style.display = 'none';
+    });
+
+    updateToLatestVersionForm.addEventListener('submit', function () {
+      updateToLatestVersionForm.style.display = 'none';
+    });
+  });
+</script>
+
+
+
+  <div class="dashboard-groups">
+    <div class="dashboard-group">
 
   <div class="status-block">
     <h1 class="h1-tittle"><ion-icon name="stats-chart-outline"></ion-icon> Dashboard de Telefonia <ion-icon name="stats-chart-outline"></ion-icon></h1>
@@ -52,9 +116,16 @@
       </div>
     </div>
   </div>
+  </div>
+  <div class="dashboard-group">
   <h1 class="subtitle">Ramais</h1>
 
-  <div class="dashboard-container">
+  <div class="dashboard-menu" onclick="toggleDashboard('.ramais-container')">
+    <span class="menu-label">Recolher</span>
+    <span class="arrow-icon arrow-down"></span>
+  </div>
+  
+  <div class="ramais-container dashboard-container">
     <div class="dashboard-item">
       <h2><ion-icon name="podium-outline"></ion-icon> Gráfico de Ramais Online/Offline</h2>
       <div class="chart-container">
@@ -76,10 +147,11 @@
           <h2>Offline</h2>
           <p id="offline"><%= totalOffline %></p>
         </div>
-      </div>      
+      </div>
     </div>
     <div class="dashboard-item">
       <h2><ion-icon name="cloud-offline-outline"></ion-icon> Ramais Offline</h2>
+      <input id="offlineSearchInput" type="text" placeholder="Pesquisar ramal...">
       <div class="container-offlineRamais">
         <% if (ramaisOffline && ramaisOffline.length > 0) { %>
           <% ramaisOffline.forEach(function (ramal) { %>
@@ -87,7 +159,7 @@
               <ul>
                 <li><%= ramal %></li>
               </ul>
-            </div>      
+            </div>
           <% }); %>
         <% } else { %>
           <div class="info-block-ramaisOffline">
@@ -95,43 +167,67 @@
             <p>Não há ramais offline no momento.</p>
           </div>
         <% } %>
-    </div>      
+      </div>
     </div>
     <div class="dashboard-item">
       <h2><ion-icon name="chevron-down-outline"></ion-icon> Ramais Online</h2>
-      <% if (ramaisOnline && ramaisOnline.length > 0) { %>
-        <div class="container-onlineRamais">
-          <ul>
-            <% ramaisOnline.forEach(function (ramal) { %>
-              <div class="info-block-onlineRamais">
-              <li><%= ramal %></li>
-             </div>
-
-            <% }); %>
-          </ul>
-      <% } else { %>
-        <div class="info-block-onlineRamais">
-          <p>Nenhum ramal online</p>
-        </div>
-      <% } %>
+      <input type="text" id="searchInput" placeholder="Pesquisar ramal...">
+      <div class="container-onlineRamais">
+        <% if (ramaisOnline && ramaisOnline.length > 0) { %>
+          <% ramaisOnline.forEach(function (ramalData) { %>
+            <div class="info-block-onlineRamais">
+              <div class="ramal"><%= ramalData.ramal %> <span class="ms">(<%= ramalData.ms %> ms)</span></div>
+              <div class="callerid"><%= ramalData.callerid %></div>
+            </div>
+          <% }); %>            
+        <% } else { %>
+          <div class="info-block-onlineRamais">
+            <p>Nenhum ramal online</p>
+          </div>
+        <% } %>
+      </div>
     </div>
+    
+    
+    <!-- <div class="resize-handle"></div> -->
   </div>
-  </div>
-
-
+</div>
+  
+<div class="dashboard-group">
 
   <h1 class="subtitle">Ligações</h1>
-  <div class="dashboard-container">
-
+  
+  <div class="dashboard-menu" onclick="toggleDashboard('.ligacoes-container')">
+    <span class="menu-label">Recolher</span>
+    <span class="arrow-icon arrow-down"></span>
+  </div>
+  
+  <div class="ligacoes-container dashboard-container">
     <div class="dashboard-item">
-      <h2><ion-icon name="call-outline"></ion-icon> Ligações Ativas</h2>
+      <h2><ion-icon name="call-outline"></ion-icon> Total Ligações <p style="color: #999; font-size: 12px; margin-bottom: 5px;">(Informações das últimas 24 horas)</p></h2>
       <div class="container">
         <div class="info-block">
-          <h2>Total</h2>
+          <h2>Ativas</h2>
           <p id="quantidadeLigacoes"><%= quantidadeLigacoes %></p>
         </div>
-      </div>      
-    </div>
+        <div class="info-block">
+          <h2>Finalizadas</h2>
+          <p id="atendimentosFinalizadosUltimas24Horas"><%= atendimentosFinalizadosUltimas24Horas %></p>
+        </div>
+        <div class="info-block">
+          <h2>Recebidas</h2>
+          <p id="atendimentosRecebidosUltimas24Horas"><%= atendimentosRecebidosUltimas24Horas %></p>
+        </div>
+        <div class="info-block">
+          <h2>Realizadas</h2>
+          <p id="atendimentosAbertosUltimas24Horas"><%= atendimentosAbertosUltimas24Horas %></p>
+        </div>
+        <div class="info-block">
+          <h2>Na fila</h2>
+          <p id="atendimentosAguardandoUltimas24Horas"><%= atendimentosAguardandoUltimas24Horas %></p>
+        </div>
+      </div>
+    </div>  
 
   <div class="dashboard-item">
     <h2>Ligações de Saída em Andamento</h2>
@@ -145,7 +241,7 @@
           var tronco = parts[8];
         %>
         <div class="info-block-chamadasAndamento">
-        <li>O ramal <%= ramalOrigem %> está ligando para <%= ramalDestino %> pelo tronco <%= tronco %></li>
+        <li>O ramal <span class="livre"><%= ramalOrigem %></span> está ligando para <span class="livre"><%= ramalDestino %></span> pelo tronco <span class="livre"><%= tronco %></span></li>
         <% }); %>
         </div>
       </ul>
@@ -158,15 +254,21 @@
   </div>
 
   <div class="dashboard-item">
-    <h2>Ramais SIP</h2>
+    <h2>Status dos Usuários</h2>
+   <!-- <input id="usersSearchInput" type="text" placeholder="Pesquisar ramal..."> -->
+
     <% if (peersInUse && peersInUse.length > 0) { %>
       <ul>
         <% peersInUse.forEach(function (peer) { %>
           <div class="peersData-container">
           <% if (peer.inUse !== '0/0/0' && peer.status === 'Online') { %>
-            <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está ocupado.</li>
+            <div class="info-block-chamadasAndamento">
+              <li>O ramal <span class="livre"><%= peer.peerName %></span> de <span class="livre"><%= peer.owner %></span> está <span class="ocupado">ocupado</span>.</li>
+            </div>
           <% } else if (peer.status === 'Online') { %>
-            <li>O ramal <%= peer.peerName %> de <%= peer.owner %> está livre.</li>
+            <div class="info-block-chamadasAndamento">
+              <li>O ramal <span class="livre"><%= peer.peerName %></span> de <span class="livre"><%= peer.owner %></span>  está <span class="livre">livre</span>.</li>
+            </div>
           <% } %>
         <% }); %>
       </ul>
@@ -174,26 +276,35 @@
       <p>Nenhum peer SIP em uso.</p>
     <% } %>
   </div>
+  
 
   <div class="dashboard-item">
     <h2>Ligações de Entrada em Andamento</h2>
-    <div class="container-chamadasEntradaAndamento">
-      <% if (mensagemChamadasEmAndamentoEntrada && mensagemChamadasEmAndamentoEntrada.length > 0) { %>
-      <ul>
+    <% if (mensagemChamadasEmAndamentoEntrada && mensagemChamadasEmAndamentoEntrada.length > 0) { %>
+      <ul class="ul-chamadas-entrada">
         <% mensagemChamadasEmAndamentoEntrada.forEach(function (mensagem_entrada) { %>
-        <li>O ramal <%= mensagem_entrada %></li>
+          <li><%= mensagem_entrada %></li>
         <% }); %>
       </ul>
-      <% } else { %>
-      <p>Nenhuma ligação em andamento</p>
-      <% } %>
-    </div>
+    <% } else { %>
+      <div class="info-block-chamadasAndamento">
+        <p>Nenhuma ligação em andamento</p>
+      </div>
+    <% } %>
   </div>
+    <!-- <div class="resize-handle"></div> -->
   </div>
+</div>
 
+<div class="dashboard-group">
   <h1 class="subtitle">Troncos SIP</h1>
 
-  <div class="dashboard-container">
+  <div class="dashboard-menu" onclick="toggleDashboard('.troncos-container')">
+    <span class="menu-label">Recolher</span>
+    <span class="arrow-icon arrow-down"></span>
+  </div>
+
+  <div class="troncos-container dashboard-container">
     <div class="dashboard-item">
       <h2><ion-icon name="podium-outline"></ion-icon> Gráfico de Troncos SIP Online/Offline</h2>
       <div class="chart-container">
@@ -242,34 +353,25 @@
         <div class="container-onlineTroncos">
           <ul>
             <% totalTroncos.troncosOnline.forEach(function (tronco) { %>
-              <div class="info-block-onlineTroncos">
-              <li><%= tronco %></li>
+              <div class="info-block-onlineRamais">
+                <li><%= tronco %></li>
              </div>
 
             <% }); %>
           </ul>
       <% } else { %>
-        <div class="info-block-onlineTroncos">
+        <div class="info-block-onlineRamais">
           <p>Nenhum tronco online</p>
         </div>
       <% } %>
     </div>
   </div>
+    <!-- <div class="resize-handle"></div> -->
 
   </div>
-  <h1 class="subtitle">Logs asterisk</h1>
-  <div class="dashboard-container">
-    <div class="dashboard-item-logs">
-      <% for (let i = 0; i < logs.length; i++) { %>
-        <p class="dashboard-item-logs-p"><%= logs[i] %></p>
-      <% } %>
-    </div>
   </div>
-  
-
-
   </div>
-
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -368,10 +470,13 @@ socket.on('dataUpdated', (data) => {
   document.getElementById('online').textContent = data.totalOnline;
   document.getElementById('offline').textContent = data.totalOffline;
   document.getElementById('quantidadeLigacoes').textContent = data.quantidadeLigacoes;
+  document.getElementById('atendimentosFinalizadosUltimas24Horas').textContent = data.atendimentosFinalizadosUltimas24Horas;
+  document.getElementById('atendimentosRecebidosUltimas24Horas').textContent = data.atendimentosRecebidosUltimas24Horas;
+  document.getElementById('atendimentosAguardandoUltimas24Horas').textContent = data.atendimentosAguardandoUltimas24Horas;
+  document.getElementById('atendimentosAbertosUltimas24Horas').textContent = data.atendimentosAbertosUltimas24Horas;
   document.getElementById('totalTroncos').textContent = data.totalTroncos.totalTroncos;
   document.getElementById('troncosOnline').textContent = data.totalTroncos.troncosOnline.length;
   document.getElementById('troncosOffline').textContent = data.totalTroncos.troncosOffline.length;
-
 
   // Chamar a função de atualização do dashboard com os dados recebidos
   updateDashboard(data);
@@ -386,7 +491,7 @@ socket.on('ramaisOfflineUpdated', (ramaisOfflineData) => {
 
   if (ramaisOfflineData.ramaisOffline && ramaisOfflineData.ramaisOffline.length > 0) {
     const ul = document.createElement('ul');
-    ul.classList.add('container-offlineRamais'); // Adicionar classe CSS à lista
+    ul.classList.add('offlineRamais'); // Adicionar classe CSS à lista
 
     ramaisOfflineData.ramaisOffline.forEach((ramal) => {
       const li = document.createElement('li');
@@ -462,24 +567,34 @@ socket.on('ramaisOnlineUpdated', (ramaisOnlineData) => {
   containerOnlineRamais.innerHTML = ''; // Limpar o conteúdo anterior
 
   if (ramaisOnlineData.ramaisOnline && ramaisOnlineData.ramaisOnline.length > 0) {
-    const ul = document.createElement('ul');
-    ul.classList.add('container-onlineRamais'); // Adicionar classe CSS à lista
-
     ramaisOnlineData.ramaisOnline.forEach((ramal) => {
-      const li = document.createElement('li');
-      li.innerHTML = ramal;
-      li.classList.add('info-block-onlineRamais'); // Adicionar classe CSS ao elemento de ramal
-      ul.appendChild(li);
-    });
+      const div = document.createElement('div');
+      div.className = 'info-block-onlineRamais'; // Adicione a classe CSS aqui
 
-    containerOnlineRamais.appendChild(ul);
+      const ramalDiv = document.createElement('div');
+      ramalDiv.className = 'ramal';
+      ramalDiv.textContent = `${ramal.ramal} (${ramal.ms} ms)`; // Aqui assume que ramal é uma string
+
+      const calleridDiv = document.createElement('div');
+      calleridDiv.className = 'callerid';
+      calleridDiv.textContent = ramal.callerid;
+
+      div.appendChild(ramalDiv);
+      div.appendChild(calleridDiv);
+
+      containerOnlineRamais.appendChild(div);
+    });
   } else {
-    const noRamalOnline = document.createElement('li');
-    noRamalOnline.textContent = 'Nenhum ramal online';
-    noRamalOnline.classList.add('info-block-onlineRamais'); // Adicionar classe CSS ao elemento
+    const noRamalOnline = document.createElement('div');
+    noRamalOnline.className = 'info-block-onlineRamais';
+    const noRamalP = document.createElement('p');
+    noRamalP.textContent = 'Nenhum ramal online';
+    noRamalOnline.appendChild(noRamalP);
     containerOnlineRamais.appendChild(noRamalOnline);
   }
 });
+
+
 
 
 // Receber os dados atualizados das chamadas em andamento
@@ -501,7 +616,7 @@ socket.on('chamadasAndamentoUpdated', (chamadasData) => {
     containerChamadasAndamento.appendChild(ul);
   } else {
     const noCall = document.createElement('li');
-    noCall.textContent = 'Nenhuma ligação em andamento';
+    noCall.textContent = 'Nenhuma ligação de saída em andamento';
     noCall.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
     containerChamadasAndamento.appendChild(noCall);
   }
@@ -509,44 +624,21 @@ socket.on('chamadasAndamentoUpdated', (chamadasData) => {
 
 // Receber os dados atualizados das chamadas de entrada em andamento
 socket.on('chamadasAndamentoEntradaUpdated', (chamadasEntradaData) => {
-  const containerChamadasEntradaAndamento = document.querySelector('.container-chamadasEntradaAndamento');
-  containerChamadasEntradaAndamento.innerHTML = ''; // Limpar o conteúdo anterior
+  const ulChamadasEntrada = document.querySelector('.ul-chamadas-entrada');
+  ulChamadasEntrada.innerHTML = ''; // Limpar o conteúdo anterior
 
   if (chamadasEntradaData.mensagemChamadasEmAndamentoEntrada && chamadasEntradaData.mensagemChamadasEmAndamentoEntrada.length > 0) {
-    const ul = document.createElement('ul');
-    ul.classList.add('container-chamadasAndamento'); // Adicionar classe CSS à lista
-
     chamadasEntradaData.mensagemChamadasEmAndamentoEntrada.forEach((mensagem_entrada) => {
       const li = document.createElement('li');
-      li.innerHTML  = mensagem_entrada;
+      li.innerHTML = mensagem_entrada;
       li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
-      ul.appendChild(li);
-    });
-
-    containerChamadasEntradaAndamento.appendChild(ul);
-  } else {
-    const noCall = document.createElement('li');
-    noCall.textContent = 'Nenhuma ligação em andamento';
-    noCall.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
-    containerChamadasEntradaAndamento.appendChild(noCall);
-  }
-});
-
-// Receber os logs atualizados
-socket.on('logsUpdated', (logsData) => {
-  const logsContainer = document.querySelector('.dashboard-item-logs');
-  logsContainer.innerHTML = ''; 
-
-  if (logsData.logs && logsData.logs.length > 0) {
-    logsData.logs.forEach((log) => {
-      const p = document.createElement('p');
-      p.textContent = log;
-      logsContainer.appendChild(p);
+      ulChamadasEntrada.appendChild(li);
     });
   } else {
-    const noLogsMessage = document.createElement('p');
-    noLogsMessage.textContent = 'Nenhum log disponível';
-    logsContainer.appendChild(noLogsMessage);
+    const li = document.createElement('li');
+    li.textContent = 'Nenhuma ligação de entrada em andamento';
+    li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
+    containerChamadasAndamento.appendChild(noCall);
   }
 });
 
@@ -564,14 +656,17 @@ socket.on('peersInUse', (peersData) => {
         const li = document.createElement('li');
         if (peer.inUse !== '0/0/0') {
           if (peer.owner) {
-            li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está ocupado.`;
+            li.innerHTML = `O ramal <span class="livre">${peer.peerName}</span> de <span class="livre">${peer.owner}</span> está </span class="ocupado">ocupado</span>.`;
+            li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
           } else {
-            li.textContent = `O ramal ${peer.peerName} está ocupado.`;
+            li.innerHTML = `O ramal <span class="livre">${peer.peerName}</span> está <span class="ocupado">ocupado</span>.`;
+            li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
           }
         } else {
-          li.textContent = `O ramal ${peer.peerName} de ${peer.owner} está livre.`;
+          li.innerHTML = `O ramal <span class="livre">${peer.peerName}</span> de ${peer.owner} está <span class="livre">livre</span>.`;
+          li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
         }
-        li.classList.add('info-block-peersInUse'); 
+        li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
         ul.appendChild(li);
       }
     });
@@ -579,7 +674,7 @@ socket.on('peersInUse', (peersData) => {
     containerPeersInUse.appendChild(ul);
   } else {
     const noCall = document.createElement('li');
-    noCall.textContent = 'Nenhum peer SIP em uso.';
+    noCall.innerHTML = 'Nenhum peer SIP em uso.';
     noCall.classList.add('info-block-peersInUse');
     containerPeersInUse.appendChild(noCall);
   }
@@ -613,11 +708,6 @@ function scrollToEnd(element) {
   element.scrollTop = element.scrollHeight;
 }
 
-window.addEventListener('load', function() {
-  var logsContainer = document.querySelector('.dashboard-item-logs');
-  scrollToEnd(logsContainer);
-});
-
 // Obtenha os elementos relevantes
 const changePasswordOption = document.querySelector('.change-password');
 const logoutOption = document.querySelector('.logout');
@@ -636,6 +726,200 @@ logoutOption.addEventListener('click', () => {
   document.body.appendChild(form);
   form.submit();
 });
+
+function toggleDashboard(selector) {
+  var container = document.querySelector(selector);
+  var arrowIcon = container.previousElementSibling.querySelector('.arrow-icon');
+  var menuLabel = container.previousElementSibling.querySelector('.menu-label');
+
+  if (container.classList.contains('collapsed')) {
+    container.classList.remove('collapsed');
+    container.style.maxHeight = container.scrollHeight + 'px';
+    menuLabel.textContent = 'Recolher';
+    arrowIcon.classList.add('arrow-up');
+  } else {
+    container.classList.add('collapsed');
+    container.style.maxHeight = '0';
+    menuLabel.textContent = 'Ver mais';
+    arrowIcon.classList.remove('arrow-up');
+  }
+}
+
+const resizeHandles = document.querySelectorAll('.resize-handle');
+const dashboardContainers = document.querySelectorAll('.dashboard-container');
+
+let activeResizeHandle = null;
+
+resizeHandles.forEach((handle, index) => {
+  handle.addEventListener('mousedown', (e) => {
+    activeResizeHandle = index;
+  });
+});
+
+document.addEventListener('mousemove', (e) => {
+  if (activeResizeHandle !== null) {
+    const container = dashboardContainers[activeResizeHandle];
+    const newHeight = e.clientY - container.getBoundingClientRect().top;
+    container.style.height = `${newHeight}px`;
+  }
+});
+
+document.addEventListener('mouseup', () => {
+  activeResizeHandle = null;
+});
+
+  // Inicializar o Sortable para cada .dashboard-container
+  const containers = document.querySelectorAll('.dashboard-container');
+  containers.forEach(container => {
+    const sortable = new Sortable(container, {
+      animation: 150, // Velocidade da animação ao arrastar
+    });
+  });
+
+  // Inicializar o Sortable para .dashboard-groups
+  const dashboardGroups = document.querySelector('.dashboard-groups');
+  if (dashboardGroups) {
+    const sortable = new Sortable(dashboardGroups, {
+      group: 'dashboard-groups', // Grupo para permitir arrastar entre .dashboard-group
+      animation: 150, // Velocidade da animação ao arrastar
+    });
+  }
+
+const searchInput = document.getElementById('searchInput');
+const ramaisContainer = document.querySelector('.container-onlineRamais');
+let ramais = Array.from(document.querySelectorAll('.info-block-onlineRamais'));
+
+searchInput.addEventListener('input', function () {
+  const searchTerm = searchInput.value.toLowerCase();
+
+  ramais.forEach((ramal) => {
+    const ramalText = ramal.textContent.toLowerCase();
+    if (ramalText.includes(searchTerm)) {
+      ramal.style.display = 'block';
+    } else {
+      ramal.style.display = 'none';
+    }
+  });
+});
+
+// Adicione isso após o seu socket.on para atualizar a lista de ramais após o socket
+socket.on('ramaisOnlineUpdated', (ramaisOnlineData) => {
+  // Atualizar a lista de ramais
+  ramais = Array.from(document.querySelectorAll('.info-block-onlineRamais'));
+});
+
+const offlineSearchInput = document.getElementById('offlineSearchInput');
+const offlineRamaisContainer = document.querySelector('.container-offlineRamais');
+let offlineRamais = Array.from(document.querySelectorAll('.info-block-ramaisOffline'));
+
+offlineSearchInput.addEventListener('input', function () {
+  const searchTerm = offlineSearchInput.value.toLowerCase();
+
+  offlineRamais.forEach((ramal) => {
+    const ramalText = ramal.textContent.toLowerCase();
+    if (ramalText.includes(searchTerm)) {
+      ramal.style.display = 'block';
+    } else {
+      ramal.style.display = 'none';
+    }
+  });
+});
+
+// Adicione isso após o seu socket.on para atualizar a lista de ramais offline após o socket
+socket.on('ramaisOfflineUpdated', (ramaisOfflineData) => {
+  // Atualizar a lista de ramais offline
+  offlineRamais = Array.from(document.querySelectorAll('.info-block-ramaisOffline'));
+});
+
+const usersSearchInput = document.getElementById('usersSearchInput');
+const usersContainer = document.querySelector('.dashboard-item');
+
+let userBlocks = [];
+
+// Função para adicionar um bloco de usuário ao contêiner
+function addUserBlock(peer) {
+  const userBlock = document.createElement('div');
+  userBlock.className = 'info-block-chamadasAndamento';
+  userBlock.innerHTML = generateUserBlockHTML(peer);
+  userBlocks.push(userBlock);
+  updateUsersDisplay();
+}
+
+// Função para atualizar a exibição dos blocos de usuário
+function updateUsersDisplay() {
+  usersContainer.innerHTML = '';
+  userBlocks.forEach((userBlock) => {
+    usersContainer.appendChild(userBlock);
+  });
+}
+
+usersSearchInput.addEventListener('input', function () {
+  const searchTerm = usersSearchInput.value.toLowerCase();
+
+  userBlocks.forEach((userBlock) => {
+    const userText = userBlock.textContent.toLowerCase();
+    if (userText.includes(searchTerm)) {
+      userBlock.style.display = 'block';
+    } else {
+      userBlock.style.display = 'none';
+    }
+  });
+});
+
+// Adicione isso após o seu socket.on para atualizar a lista de status dos usuários após o socket
+socket.on('peersInUseUpdated', (peersData) => {
+  userBlocks = [];
+
+  peersData.peersInUse.forEach((peer) => {
+    if (peer.status === 'Online') {
+      addUserBlock(peer);
+    }
+  });
+
+  updateUsersDisplay();
+});
+
+// Função para gerar o HTML do bloco de usuário
+function generateUserBlockHTML(peer) {
+  if (peer.inUse !== '0/0/0') {
+    if (peer.owner) {
+      return `O ramal <span class="livre">${peer.peerName}</span> de <span class="livre">${peer.owner}</span> está <span class="ocupado">ocupado</span>.`;
+    } else {
+      return `O ramal <span class="livre">${peer.peerName}</span> está <span class="ocupado">ocupado</span>.`;
+    }
+  } else {
+    return `O ramal <span class="livre">${peer.peerName}</span> de ${peer.owner} está <span class="livre">livre</span>.`;
+  }
+}
+
+function toggleDarkMode() {
+    var element = document.body;
+    element.classList.toggle("dark-mode");
+
+      // Toggle icones
+      var sunIcon = document.querySelector(".sun");
+      var moonIcon = document.querySelector(".moon");
+      if (sunIcon && moonIcon) {
+        sunIcon.style.transform = element.classList.contains("dark-mode") ? "scale(0)" : "scale(1)";
+        moonIcon.style.transform = element.classList.contains("dark-mode") ? "scale(1)" : "scale(0)";
+      }
+    
+    var dashboardMenu = document.querySelectorAll('.dashboard-menu');
+    var dashboardItems = document.querySelectorAll('.dashboard-item');
+    var searchInputs = document.querySelectorAll('#searchInput, #offlineSearchInput, #usersSearchInput');
+    var infoBlockRamaisOffline = document.querySelector(".info-block-ramaisOffline");
+    var infoBlockRamaisOnline = document.querySelector(".info-block-ramaisOffline");
+    var h1Tittle = document.querySelector(".h1-tittle");
+    var chamadasAndamento = document.querySelector(".info-block-chamadasAndamento");
+    
+    dashboardMenu.forEach(item => item.classList.toggle("dark-mode"));
+    dashboardItems.forEach(item => item.classList.toggle("dark-mode"));
+    searchInputs.forEach(item => item.classList.toggle("dark-mode"));
+    infoBlockRamaisOffline.forEach(item => item.classList.togle("dark-mode"))
+    infoBlockRamaisOnline.forEach(item => item.classList.togle("dark-mode"))
+    h1Tittle.forEach(item => item.classList.togle("dark-mode"))
+    chamadasAndamento.forEach(item => item.classList.togle("dark-mode"))
+  }
 
 </script>
 </body>
