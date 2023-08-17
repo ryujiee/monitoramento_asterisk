@@ -171,6 +171,7 @@
     </div>
     <div class="dashboard-item">
       <h2><ion-icon name="chevron-down-outline"></ion-icon> Ramais Online</h2>
+<<<<<<< HEAD
       <input type="text" id="searchInput" placeholder="Pesquisar ramal...">
       <div class="container-onlineRamais">
         <% if (ramaisOnline && ramaisOnline.length > 0) { %>
@@ -195,6 +196,29 @@
   
 <div class="dashboard-group">
 
+=======
+      <% if (ramaisOnline && ramaisOnline.length > 0) { %>
+        <div class="container-onlineRamais">
+          <ul>
+            <% ramaisOnline.forEach(function (ramal) { %>
+              <div class="info-block-onlineRamais">
+                <li><%= ramal %></li>
+              </div>
+            <% }); %>
+          </ul>
+        </div>
+      <% } else { %>
+        <div class="info-block-onlineRamais">
+          <p>Nenhum ramal online</p>
+        </div>
+      <% } %>
+    </div>
+    <div class="resize-handle"></div>
+  </div>
+
+  
+  
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   <h1 class="subtitle">Ligações</h1>
   
   <div class="dashboard-menu" onclick="toggleDashboard('.ligacoes-container')">
@@ -287,12 +311,20 @@
         <% }); %>
       </ul>
     <% } else { %>
+<<<<<<< HEAD
       <div class="info-block-chamadasAndamento">
+=======
+      <div class="container-chamadasEntradaAndamento">
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
         <p>Nenhuma ligação em andamento</p>
       </div>
     <% } %>
   </div>
+<<<<<<< HEAD
     <!-- <div class="resize-handle"></div> -->
+=======
+  <div class="resize-handle"></div>
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   </div>
 </div>
 
@@ -366,7 +398,11 @@
       <% } %>
     </div>
   </div>
+<<<<<<< HEAD
     <!-- <div class="resize-handle"></div> -->
+=======
+  <div class="resize-handle"></div>
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 
   </div>
   </div>
@@ -567,6 +603,12 @@ socket.on('ramaisOnlineUpdated', (ramaisOnlineData) => {
   containerOnlineRamais.innerHTML = ''; // Limpar o conteúdo anterior
 
   if (ramaisOnlineData.ramaisOnline && ramaisOnlineData.ramaisOnline.length > 0) {
+<<<<<<< HEAD
+=======
+    const ul = document.createElement('ul');
+    ul.classList.add('onlineRamais'); // Adicionar classe CSS à lista
+
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
     ramaisOnlineData.ramaisOnline.forEach((ramal) => {
       const div = document.createElement('div');
       div.className = 'info-block-onlineRamais'; // Adicione a classe CSS aqui
@@ -633,6 +675,29 @@ socket.on('chamadasAndamentoEntradaUpdated', (chamadasEntradaData) => {
       li.innerHTML = mensagem_entrada;
       li.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento de mensagem
       ulChamadasEntrada.appendChild(li);
+<<<<<<< HEAD
+=======
+    });
+  } else {
+    const noCall = document.createElement('li');
+    noCall.textContent = 'Nenhuma ligação de entrada em andamento';
+    noCall.classList.add('info-block-chamadasAndamento'); // Adicionar classe CSS ao elemento
+    containerChamadasAndamento.appendChild(noCall);
+  }
+});
+
+
+// Receber os logs atualizados
+socket.on('logsUpdated', (logsData) => {
+  const logsContainer = document.querySelector('.dashboard-item-logs');
+  logsContainer.innerHTML = ''; 
+
+  if (logsData.logs && logsData.logs.length > 0) {
+    logsData.logs.forEach((log) => {
+      const p = document.createElement('p');
+      p.textContent = log;
+      logsContainer.appendChild(p);
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
     });
   } else {
     const li = document.createElement('li');
@@ -768,6 +833,7 @@ document.addEventListener('mouseup', () => {
   activeResizeHandle = null;
 });
 
+<<<<<<< HEAD
   // Inicializar o Sortable para cada .dashboard-container
   const containers = document.querySelectorAll('.dashboard-container');
   containers.forEach(container => {
@@ -920,6 +986,10 @@ function toggleDarkMode() {
     h1Tittle.forEach(item => item.classList.togle("dark-mode"))
     chamadasAndamento.forEach(item => item.classList.togle("dark-mode"))
   }
+=======
+
+
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 
 </script>
 </body>

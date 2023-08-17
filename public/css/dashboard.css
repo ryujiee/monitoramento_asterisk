@@ -30,9 +30,30 @@ body {
   gap: 20px;
   padding: 20px;
   transition: max-height 0.9s ease-in-out;
+<<<<<<< HEAD
   position: relative;
 }
 
+=======
+  max-height: 500px; /* Defina uma altura máxima para o container */
+  overflow: hidden;
+  position: relative;
+}
+
+.resize-handle {
+  /* Estilos do controle de redimensionamento */
+  width: 80%;
+  height: 5px;
+  border-radius: 5px;
+  background-color: #555555;
+  cursor: ns-resize; /* Cursor vertical */
+  position: absolute;
+  bottom: 0;
+  left: 50%; /* Centralizar horizontalmente */
+  transform: translateX(-50%); /* Ajustar para centralizar horizontalmente */
+}
+
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 
 .dashboard-container.open {
   max-height: none;
@@ -70,11 +91,16 @@ body {
   background-color: #262a2b;
   border-radius: 30px;
   transition: all 0.3s ease; /* Transição suave ao expandir/recolher */
+<<<<<<< HEAD
   cursor: pointer;
   overflow: hidden; /* Adicionar overflow para evitar que os quadrados vazem */
 }
 
 
+=======
+}
+
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 .dashboard-container.collapsed .dashboard-item {
   display: none; /* Oculta os itens recolhidos */
 }
@@ -99,11 +125,18 @@ body {
 .container {
   display: flex;
   flex-wrap: wrap;
+<<<<<<< HEAD
   justify-content: center; /* Centralizar horizontalmente */
 }
 
 .container > * {
   margin: 15px; /* Adicionar 15px de margem em todas as direções para criar um espaço de 30px entre os itens */
+=======
+  justify-content: space-between;
+}
+
+.container > * {
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   margin-bottom: 10px; /* Adicione o valor de espaçamento vertical desejado aqui */
 }
 
@@ -149,16 +182,25 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+<<<<<<< HEAD
   max-height: 500px; /* Defina uma altura máxima para ativar a rolagem vertical */
   overflow-y: auto; /* Ativar rolagem apenas quando necessário */
 }
 
 .offlineRamais {
+=======
+  overflow-y: scroll;
+}
+.offlineRamais{
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 .info-block-ramaisOffline {
   position: relative;
   background-color: #641008;
@@ -203,6 +245,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+<<<<<<< HEAD
 }
 .container-onlineRamais {
   display: flex;
@@ -212,6 +255,15 @@ body {
   overflow-y: auto; /* Ativar rolagem apenas quando necessário */
 }
 
+=======
+  overflow-y: scroll;
+}
+.onlineRamais{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 .info-block-onlineRamais {
   background-color: #08911c92;
   border-radius: 10px;
@@ -350,10 +402,23 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: #757575;
 }
+<<<<<<< HEAD
 
 .ocupado {
   color: red;
+=======
+.peersData-container{
+  overflow-y: scroll;
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 }
+.ocupado {
+  color: red;
+}
+
+.livre {
+  color: green;
+}
+
 
 .livre {
   color: green;
@@ -438,25 +503,41 @@ body {
 
 /* Estilo para o texto "ocupado" */
 .ocupado {
+<<<<<<< HEAD
   color: rgb(238, 57, 57); /* Define a cor vermelha para "ocupado" */
+=======
+  color: red; /* Define a cor vermelha para "ocupado" */
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   font-weight: bold; /* Negrito */
 }
 
 /* Estilo para o texto "livre" */
 .livre {
+<<<<<<< HEAD
   color: rgb(0, 199, 0); /* Defina a cor desejada para o nome do peer */
+=======
+  color: green; /* Defina a cor desejada para o nome do peer */
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   font-weight: bold; /* Negrito */
 }
 
 /* Estilo para o chamador do ramal */
 .ramal-chamador {
+<<<<<<< HEAD
   color: rgb(2, 190, 2); /* Cor do texto para o chamador */
+=======
+  color: green; /* Cor do texto para o chamador */
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   font-weight: bold; /* Texto em negrito */
 }
 
 /* Estilo para o número chamado */
 .ramal-chamado {
+<<<<<<< HEAD
   color: rgb(0, 196, 0); /* Cor do texto para o número chamado */
+=======
+  color: green; /* Cor do texto para o número chamado */
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   font-weight: bold; /* Texto em negrito */
 }
 
@@ -466,6 +547,7 @@ body {
   font-weight: bold; /* Texto em negrito */
 }
 
+<<<<<<< HEAD
 /* Estilização para a barra de pesquisa */
 #searchInput, #offlineSearchInput, #usersSearchInput {
   width: 100%;
@@ -669,3 +751,5 @@ body {
   color: green;
 }
 
+=======
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b

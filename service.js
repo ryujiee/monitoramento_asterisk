@@ -3,12 +3,15 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 const AMI = require('asterisk-manager');
 const mongoose = require('mongoose');
+<<<<<<< HEAD
 const axios = require('axios'); // Importar o módulo axios
 
 
 const repoOwner = 'ryujiee';
 const repoName = 'monitoramento_asterisk';
 const appVersion = 'v0.0.0-alpha'; // Versão da sua aplicação
+=======
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
 
 
 const amiConfig = {
@@ -603,6 +606,80 @@ async function checkForUpdates() {
 }
 
 
+const getAtendimentosRecebidosUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      abertoPor: 'contato',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+const getAtendimentosFinalizadoUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      status: 'F',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+const getAtendimentosAbertosUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      abertoPor: 'atendente',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+const getAtendimentosAguardandoUltimas24Horas = async () => {
+  const umDiaAtras = new Date(Date.now() - 24 * 60 * 60 * 1000); // Obtém a data de um dia atrás
+
+  try {
+    const atendimentos = await mongoose.connection.db.collection('atendimentos').find({
+      status: 'AG',
+      inicio: { $gte: umDiaAtras },
+      canal: 'pabx'
+    }).toArray();
+
+    const quantidadeAtendimentos = atendimentos.length
+    return quantidadeAtendimentos;
+  } catch (error) {
+    console.error('Erro ao executar consulta:', error);
+    return [];
+  }
+};
+
+
+
 module.exports = {
     getTotalRamais,
     getQuantidadeChamadasAtivas,
@@ -613,9 +690,17 @@ module.exports = {
     getSIPPeersInUse,
     getPeerOwner,
     getTotalTroncos,
+<<<<<<< HEAD
     getAtendimentosRecebidosUltimas24Horas,
     getAtendimentosFinalizadoUltimas24Horas,
     getAtendimentosAbertosUltimas24Horas,
     getAtendimentosAguardandoUltimas24Horas,
     checkForUpdates
+=======
+    getLogs,
+    getAtendimentosRecebidosUltimas24Horas,
+    getAtendimentosFinalizadoUltimas24Horas,
+    getAtendimentosAbertosUltimas24Horas,
+    getAtendimentosAguardandoUltimas24Horas
+>>>>>>> 430d7b4b885b69c312ea1155d9b9776e902ecc9b
   };
