@@ -10,6 +10,8 @@ const User = require('./models/User');
 const https = require('https');
 const {getAtendimentosAguardandoUltimas24Horas, checkForUpdates, getAtendimentosAbertosUltimas24Horas, getAtendimentosFinalizadoUltimas24Horas, getAtendimentosRecebidosUltimas24Horas, getTotalTroncos, getTotalRamais, getQuantidadeChamadasAtivas, checkAsteriskStatus, getAsteriskUptime, getOfflineAndOnlinePeers, getChamadasEmAndamento, getSIPPeersInUse, getPeerOwner} = require('./service');
 const sslConfig = require('./SSL/sslConfig');
+const { exec } = require('child_process');
+
 
 // Criação do servidor HTTPS
 const httpsServer = https.createServer(sslConfig.credentials, app);
